@@ -1,5 +1,68 @@
+import pytest_asyncio
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from src.main import app
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
+from src.database import Base, get_session
+from src.main import app as main_app
 
 
-client = TestClient(app)
+SQLALCHEMY_DATABASE_URL = "sqlite+aiosqlite://"
+
+engine = create_async_engine(
+    SQLALCHEMY_DATABASE_URL,
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
+    echo=True,
+)
+
+Session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+
+
+@pytest_asyncio.fixture(autouse=True)
+async def app():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield main_app
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+
+
+@pytest_asyncio.fixture
+async def db_session(app: FastAPI):
+    connection = await engine.connect()
+    transaction = await connection.begin()
+    session = Session(bind=connection)
+    yield session
+    await session.close()
+    await transaction.rollback()
+    await connection.close()
+
+
+@pytest_asyncio.fixture
+async def db_session(app: FastAPI):
+    connection = await engine.connect()
+    transaction = await connection.begin()
+    session = Session(bind=connection)
+    yield session
+    await session.close()
+    await transaction.rollback()
+    await connection.close()
+
+
+@pytest_asyncio.fixture
+async def client(app: FastAPI, db_session: Session):
+    async def _get_test_db():
+        try:
+            yield db_session
+        finally:
+            pass
+
+    async def async_dummy():
+        pass
+
+    app.dependency_overrides[get_session] = _get_test_db
+    app.router.startup = async_dummy
+    with TestClient(app) as client:
+        yield client

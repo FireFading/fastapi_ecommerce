@@ -1,8 +1,9 @@
 import jwt
-from tests.conftest import client
+import pytest
 from tests.settings import TEST_USER
 
-def test_register_user():
+@pytest.mark.asyncio
+def test_register_user(client):
     response = client.post("/users/register", json=TEST_USER)
     assert response.status_code == 201
 

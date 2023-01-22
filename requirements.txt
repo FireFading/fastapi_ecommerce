@@ -1,5 +1,6 @@
 fastapi
 fastapi-jwt-auth
+fastapi_pagination
 httpx
 pytest
 pyjwt
