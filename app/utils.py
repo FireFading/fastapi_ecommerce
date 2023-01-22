@@ -15,7 +15,7 @@ def get_hashed_password(password: str) -> str:
 
 
 def verify_password(password: str, hashed_password: str) -> bool:
-    return bcrypt.checkpw(password, hashed_password)
+    return bcrypt.checkpw(password.encode(), hashed_password)
 
 
 def create_access_token(user: str, expires_delta: int = None) -> str:
@@ -26,7 +26,7 @@ def create_access_token(user: str, expires_delta: int = None) -> str:
             minutes=ACCESS_TOKEN_EXPIRE_MINUTES
         )
 
-    to_encode = {"expires_in": expires_in, "sub": user}
+    to_encode = {"exp": expires_in, "user": user}
     return jwt.encode(to_encode, JWT_SECRET_KEY, ALGORITHM)
 
 
@@ -38,5 +38,5 @@ def create_refresh_token(user: str, expires_delta: int = None) -> str:
             minutes=REFRESH_TOKEN_EXPIRE_MINUTES
         )
 
-    to_encode = {"expires_in": expires_in, "user": user}
+    to_encode = {"exp": expires_in, "user": user}
     return jwt.encode(to_encode, JWT_REFRESH_SECRET_KEY, ALGORITHM)

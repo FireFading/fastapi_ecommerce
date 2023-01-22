@@ -6,11 +6,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from starlette.middleware.cors import CORSMiddleware
 
-from src.crud import DBUsers
-from src.database import Base, engine, get_session
-from src.models import User as m_User
-from src.schemas import User
-from src.utils import (
+from app.crud import DBUsers
+from app.database import Base, engine, get_session
+from app.models import User as m_User
+from app.schemas import User
+from app.utils import (
     create_access_token,
     create_refresh_token,
     get_hashed_password,

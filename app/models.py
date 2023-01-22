@@ -1,7 +1,7 @@
 from sqlalchemy import Column, String
 from sqlalchemy_utils import UUIDType
 
-from src.database import Base
+from app.database import Base
 
 
 class User(Base):

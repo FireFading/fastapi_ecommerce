@@ -4,7 +4,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select as f_select
 
-from src.models import User as m_User
+from app.models import User as m_User
 
 
 class CRUD:
