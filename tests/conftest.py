@@ -25,8 +25,6 @@ async def app():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield main_app
-    # async with engine.begin() as conn:
-    #     await conn.run_sync(Base.metadata.drop_all)
 
 
 @pytest_asyncio.fixture

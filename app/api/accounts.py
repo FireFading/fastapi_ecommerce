@@ -1,83 +1,26 @@
 import uuid
-from datetime import timedelta
-from typing import Optional
 
-from fastapi import Depends, FastAPI, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 from fastapi_jwt_auth import AuthJWT
-from fastapi_jwt_auth.exceptions import AuthJWTException
-from fastapi_pagination import add_pagination
-from pydantic import BaseSettings
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from starlette.middleware.cors import CORSMiddleware
-
 from app.crud import DBUsers
-from app.database import Base, engine, get_session
+from app.database import get_session
 from app.models import User as m_User
 from app.schemas import User
 from app.utils import get_hashed_password, verify_password
 
-app = FastAPI()
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-
-class JWTSettings(BaseSettings):
-    authjwt_secret_key: str = "secret"
-    authjwt_header_type: Optional[str] = None
-    authjwt_header_name: str = "Authorization"
-    access_token_expires: timedelta = timedelta(minutes=15)
-    refresh_token_expires: timedelta = timedelta(days=30)
-
-
-@AuthJWT.load_config
-def get_header_type_none():
-    return JWTSettings()
-
-
-add_pagination(app)
 
 crud_users = DBUsers()
 
-
-@app.on_event("startup")
-async def startup():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+router = APIRouter(
+    prefix="/accounts", tags=["accounts"], responses={404: {"description": "Not found"}}
+)
 
 
-@app.exception_handler(AuthJWTException)
-def authjwt_exception_handler(request: Request, exc: AuthJWTException):
-    return JSONResponse(status_code=exc.status_code, content={"detail": exc.message})
-
-
-@app.get("/protected")
-def protected(authorize: AuthJWT = Depends()):
-    authorize.jwt_required()
-    return JSONResponse(status_code=status.HTTP_200_OK, content={"hello": "world"})
-
-
-@app.get("/get_headers_access")
-def get_headers_access(authorize: AuthJWT = Depends()):
-    authorize.jwt_required()
-    return authorize.get_unverified_jwt_headers()
-
-
-@app.get("/get_headers_refresh")
-def get_headers_refresh(authorize: AuthJWT = Depends()):
-    authorize.jwt_refresh_token_required()
-    return authorize.get_unverified_jwt_headers()
-
-
-@app.post(
-    "/accounts/register",
+@router.post(
+    "/register/",
     response_model=User,
     status_code=201,
     summary="Регистрация пользователя",
@@ -94,12 +37,11 @@ async def register(user: User, db: AsyncSession = Depends(get_session)):
     create_user = m_User(email=user.email, password=hashed_password, user_id=user_id)
     await crud_users.create(db=db, db_user=create_user)
     return JSONResponse(
-        status_code=status.HTTP_201_CREATED,
-        content={"email": user.email}
+        status_code=status.HTTP_201_CREATED, content={"email": user.email}
     )
 
 
-@app.post("/accounts/login", status_code=200)
+@router.post("/login/", status_code=200)
 async def login(
     user: User, db: AsyncSession = Depends(get_session), authorize: AuthJWT = Depends()
 ):
@@ -122,7 +64,7 @@ async def login(
     )
 
 
-@app.delete("/accounts/logout")
+@router.delete("/logout/")
 def logout(authorize: AuthJWT = Depends()):
     authorize.jwt_required()
     return JSONResponse(
