@@ -1,8 +1,11 @@
+aiosqlite
+bcrypt
 fastapi
 fastapi-jwt-auth
 fastapi_pagination
 httpx
-pytest
 pyjwt
+pytest
 sqlalchemy
+sqlalchemy_utils
 uvicorn

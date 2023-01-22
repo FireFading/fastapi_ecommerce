@@ -1,5 +1,5 @@
 {
     "editor.fontFamily": "Fira Code LIght, monospace",
-    "editor.fontSize": 13,
-    "files.autoSave": "afterDelay"
+    "editor.fontSize": 14,
+    "files.autoSave": "onFocusChange"
 }
