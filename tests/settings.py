@@ -6,3 +6,4 @@ TEST_USER_WITH_WRONG_PASSWORD = {
 
 LOGIN_URL = "/accounts/login/"
 REGISTER_URL = "/accounts/register/"
+LOGOUT_URL = "/accounts/logout/"
