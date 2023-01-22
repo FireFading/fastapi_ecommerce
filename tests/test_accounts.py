@@ -1,14 +1,14 @@
-import pytest
 import jwt
+import pytest
+from app.utils import ALGORITHM, JWT_REFRESH_SECRET_KEY, JWT_SECRET_KEY
 from fastapi import status
 
 from tests.settings import (
-    TEST_USER,
-    TEST_USER_WITH_WRONG_PASSWORD,
     LOGIN_URL,
     REGISTER_URL,
+    TEST_USER,
+    TEST_USER_WITH_WRONG_PASSWORD,
 )
-from app.utils import JWT_SECRET_KEY, JWT_REFRESH_SECRET_KEY, ALGORITHM
 
 
 class TestAccounts:
@@ -33,10 +33,14 @@ class TestAccounts:
         assert "access_token" in response.json()
         assert "refresh_token" in response.json()
         access_token = response.json().get("access_token")
-        payload = jwt.decode(jwt=access_token, key=JWT_SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(
+            jwt=access_token, key=JWT_SECRET_KEY, algorithms=[ALGORITHM]
+        )
         assert payload.get("user") == self.test_user.get("email")
         refresh_token = response.json().get("refresh_token")
-        payload = jwt.decode(jwt=refresh_token, key=JWT_REFRESH_SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(
+            jwt=refresh_token, key=JWT_REFRESH_SECRET_KEY, algorithms=[ALGORITHM]
+        )
         assert payload.get("user") == self.test_user.get("email")
 
     @pytest.mark.asyncio
