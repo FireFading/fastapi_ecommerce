@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.crud import DBUsers
 from app.database import get_session
 from app.models import User as m_User
-from app.schemas import User
+from app.schemas import LoginCredentials, User
 from app.utils import get_hashed_password, verify_password
 
 
@@ -25,7 +25,7 @@ router = APIRouter(
     status_code=201,
     summary="Регистрация пользователя",
 )
-async def register(user: User, db: AsyncSession = Depends(get_session)):
+async def register(user: LoginCredentials, db: AsyncSession = Depends(get_session)):
     db_user = await crud_users.get_user_by_email(db=db, email=user.email)
     if db_user:
         raise HTTPException(
@@ -43,7 +43,9 @@ async def register(user: User, db: AsyncSession = Depends(get_session)):
 
 @router.post("/login/", status_code=200)
 async def login(
-    user: User, db: AsyncSession = Depends(get_session), authorize: AuthJWT = Depends()
+    user: LoginCredentials,
+    db: AsyncSession = Depends(get_session),
+    authorize: AuthJWT = Depends(),
 ):
     db_user = await crud_users.get_user_by_email(db=db, email=user.email)
     if not db_user:
@@ -65,8 +67,19 @@ async def login(
 
 
 @router.delete("/logout/")
-def logout(authorize: AuthJWT = Depends()):
+async def logout(authorize: AuthJWT = Depends()):
     authorize.jwt_required()
     return JSONResponse(
         status_code=status.HTTP_200_OK, content={"msg": "Successfully logout"}
     )
+
+
+@router.get("/me", response_model=User, summary="Получение информации о пользователе")
+async def user_info(
+    db: AsyncSession = Depends(get_session), authorize: AuthJWT = Depends()
+):
+    authorize.jwt_required()
+    email = authorize.get_jwt_subject()
+    user = await crud_users.get_user_by_email(db=db, email=email)
+    user_info = {"email": user.email, "phone": user.phone}
+    return JSONResponse(status_code=status.HTTP_200_OK, content=user_info)

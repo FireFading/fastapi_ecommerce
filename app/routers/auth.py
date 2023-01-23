@@ -36,12 +36,6 @@ def authjwt_exception_handler(request: Request, exc: AuthJWTException):
     return JSONResponse(status_code=exc.status_code, content={"detail": exc.message})
 
 
-@app.get("/protected")
-def protected(authorize: AuthJWT = Depends()):
-    authorize.jwt_required()
-    return JSONResponse(status_code=status.HTTP_200_OK, content={"hello": "world"})
-
-
 @app.get("/get_headers_access")
 def get_headers_access(authorize: AuthJWT = Depends()):
     authorize.jwt_required()

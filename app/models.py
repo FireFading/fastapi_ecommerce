@@ -9,4 +9,8 @@ class User(Base):
 
     user_id = Column(UUIDType(binary=False), primary_key=True, index=True)
     email = Column(String, unique=True, index=True)
+    phone = Column(String, unique=True, index=True, nullable=True)
     password = Column(String)
+
+    def __repr__(self):
+        return f"Пользователь {self.email}"

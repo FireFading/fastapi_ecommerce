@@ -3,12 +3,15 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
-class User(BaseModel):
+class LoginCredentials(BaseModel):
     email: str
     password: str
 
-    class Config:
-        orm_mode = True
+
+class User(BaseModel):
+    email: str
+    phone: str
+    password: str
 
 
 class Token(BaseModel):
