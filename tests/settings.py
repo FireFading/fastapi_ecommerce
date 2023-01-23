@@ -12,4 +12,4 @@ class TestUser:
         "email": email,
         "password": "WrongTestPassword",
     }
-    USER_INFO = {"email": email, "phone": None }
+    USER_INFO = {"email": email, "phone": None}

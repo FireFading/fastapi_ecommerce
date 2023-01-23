@@ -32,7 +32,9 @@ class TestAccountsEndpoints:
 
     @pytest.mark.asyncio
     async def test_wrong_password_login(self, client):
-        response = client.post(urls.LOGIN_URL, json=test_user.TEST_USER_WITH_WRONG_PASSWORD)
+        response = client.post(
+            urls.LOGIN_URL, json=test_user.TEST_USER_WITH_WRONG_PASSWORD
+        )
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
         assert response.json() == {"detail": "Неверный пароль"}
 

@@ -74,7 +74,12 @@ async def logout(authorize: AuthJWT = Depends()):
     )
 
 
-@router.get("/me", response_model=User, summary="Получение информации о пользователе")
+@router.get(
+    "/me",
+    response_model=User,
+    status_code=200,
+    summary="Получение информации о пользователе",
+)
 async def user_info(
     db: AsyncSession = Depends(get_session), authorize: AuthJWT = Depends()
 ):
