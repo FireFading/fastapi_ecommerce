@@ -45,11 +45,37 @@ class TestAccountsEndpoints:
         )
         assert response.status_code == status.HTTP_200_OK
 
+
+
+class TestProfileEndpoints:
     @pytest.mark.asyncio
-    async def test_user_info_without_phone(self, client):
+    async def test_user_info(self, client):
         response = client.get(
             urls.USER_INFO_URL,
             headers={"Authorization": tokens.get("access_token")},
         )
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == test_user.USER_INFO
+
+    @pytest.mark.asyncio
+    async def test_user_update_email(self, client):
+        response = client.post(
+            urls.UPDATE_EMAIL_URL,
+            headers={"Authorization": tokens.get("access_token")},
+            json={"email": test_user.new_email},
+        )
+        assert response.status_code == status.HTTP_202_ACCEPTED
+        assert "access_token" in response.json()
+        assert "refresh_token" in response.json()
+        tokens["access_token"] = response.json().get("access_token")
+        tokens["refresh_token"] = response.json().get("refresh_token")
+
+    @pytest.mark.asyncio
+    async def test_user_update_phone(self, client):
+        response = client.post(
+            urls.UPDATE_PHONE_URL,
+            headers={"Authorization": tokens.get("access_token")},
+            json={"phone": test_user.new_phone},
+        )
+        assert response.status_code == status.HTTP_202_ACCEPTED
+        assert response.json() == {"detail": "Телефон успешно обновлен"}

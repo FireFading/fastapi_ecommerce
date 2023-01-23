@@ -37,9 +37,13 @@ class DBUsers(CRUD):
 
         return db_user
 
-    async def update(self, db: AsyncSession, user: m_User, updated_fields: dict):
-        for field, new_value in updated_fields.items():
-            user[field] = new_value
+    async def update_email(self, db: AsyncSession, user: m_User, new_email: str):
+        user.email = new_email
+        await db.flush()
+        await db.commit()
+
+    async def update_phone(self, db: AsyncSession, user: m_User, new_phone: str):
+        user.phone = new_phone
         await db.flush()
         await db.commit()
 

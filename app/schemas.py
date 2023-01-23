@@ -14,6 +14,14 @@ class User(BaseModel):
     password: str
 
 
+class UpdateEmail(BaseModel):
+    email: str
+
+
+class UpdatePhone(BaseModel):
+    phone: str
+
+
 class Token(BaseModel):
     email: str
     exp: datetime
