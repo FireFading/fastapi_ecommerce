@@ -14,14 +14,14 @@ class User(BaseModel):
     password: str
 
 
-class UpdateEmail(BaseModel):
+class Email(BaseModel):
     email: str
 
 
-class UpdatePhone(BaseModel):
+class Phone(BaseModel):
     phone: str
 
 
-class Token(BaseModel):
-    email: str
-    exp: datetime
+class ResetPassword(BaseModel):
+    password: str
+    confirm_password: str

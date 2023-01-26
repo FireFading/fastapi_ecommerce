@@ -3,6 +3,7 @@ bcrypt
 fastapi
 fastapi-jwt-auth
 fastapi_pagination
+fastapi_mail
 httpx
 pyjwt
 pytest

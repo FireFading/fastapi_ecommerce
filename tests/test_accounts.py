@@ -1,5 +1,6 @@
 import pytest
 from fastapi import status
+from pytest_mock import MockerFixture
 
 from tests.settings import TestUser, Urls
 
@@ -44,7 +45,18 @@ class TestAccountsEndpoints:
             urls.LOGOUT_URL, headers={"Authorization": tokens.get("access_token")}
         )
         assert response.status_code == status.HTTP_200_OK
+        assert response.json() == {"detail": "Вы вышли из аккаунта"}
 
+    @pytest.mark.asyncio
+    async def test_user_forgot_password(self, client, mocker: MockerFixture):
+        mocker.patch("app.routers.accounts.send_mail", return_value=True)
+        response = client.post(
+            urls.FORGOT_PASSWORD_URL, json={"email": test_user.email}
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json() == {
+            "detail": "Письмо с токеном для сброса пароля отправлено"
+        }
 
 
 class TestProfileEndpoints:
