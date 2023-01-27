@@ -33,3 +33,7 @@ class TestUser:
         "email": new_email,
         "password": password,
     }
+
+
+urls = Urls()
+test_user = TestUser()
