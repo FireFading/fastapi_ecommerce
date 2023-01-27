@@ -9,7 +9,7 @@ from pytest_mock import MockerFixture
 from tests.settings import create_fake_token, test_user, urls
 
 
-class TestAccountsEndpoints:
+class TestRegister:
     @pytest.mark.asyncio
     async def test_register_user(self, client):
         response = client.post(urls.register, json=test_user.TEST_USER)
@@ -30,6 +30,8 @@ class TestAccountsEndpoints:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.json() == {"detail": "Пользователь с таким Email не существует"}
 
+
+class TestLogin:
     @pytest.mark.asyncio
     async def test_login_user(self, user):
         response = user.post(urls.login, json=test_user.TEST_USER)
@@ -43,12 +45,16 @@ class TestAccountsEndpoints:
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
         assert response.json() == {"detail": "Неверный пароль"}
 
+
+class TestLogout:
     @pytest.mark.asyncio
     async def test_logout_user(self, auth_client):
         response = auth_client.delete(urls.logout)
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == {"detail": "Вы вышли из аккаунта"}
 
+
+class TestForgotPassword:
     @pytest.mark.asyncio
     async def test_user_forgot_password(self, user, mocker: MockerFixture):
         mocker.patch("app.routers.accounts.send_mail", return_value=True)
@@ -67,6 +73,8 @@ class TestAccountsEndpoints:
         assert response.status_code == status.HTTP_404_NOT_FOUND
         assert response.json() == {"detail": "Пользователь не найден"}
 
+
+class TestResetPassword:
     @pytest.mark.asyncio
     async def test_user_reset_password(self, user):
         reset_password_token = create_reset_password_token(email=test_user.email)
@@ -121,6 +129,8 @@ class TestAccountsEndpoints:
         assert response.status_code == status.HTTP_203_NON_AUTHORITATIVE_INFORMATION
         assert response.json() == {"detail": "Пароли не совпадают"}
 
+
+class TestChangePassword:
     @pytest.mark.asyncio
     async def test_user_change_password(self, auth_client):
         response = auth_client.post(
