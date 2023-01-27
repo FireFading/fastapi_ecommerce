@@ -26,14 +26,6 @@ class TestUser:
     new_password = "NewTestPassword"
     wrong_password = "WrongTestPassword"
 
-    TEST_USER = {"email": email, "password": password}
-    TEST_USER_WITH_WRONG_PASSWORD = {
-        "email": email,
-        "password": wrong_password,
-    }
-
-    USER_INFO = {"email": email, "phone": None}
-
 
 urls = Urls()
 test_user = TestUser()

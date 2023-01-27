@@ -12,13 +12,19 @@ from tests.settings import create_fake_token, test_user, urls
 class TestRegister:
     @pytest.mark.asyncio
     async def test_register_user(self, client):
-        response = client.post(urls.register, json=test_user.TEST_USER)
+        response = client.post(
+            urls.register,
+            json={"email": test_user.email, "password": test_user.password},
+        )
         assert response.status_code == status.HTTP_201_CREATED
-        assert response.json() == {"email": test_user.TEST_USER.get("email")}
+        assert response.json() == {"email": test_user.email}
 
     @pytest.mark.asyncio
     async def test_failed_repeate_register_user(self, user):
-        response = user.post(urls.register, json=test_user.TEST_USER)
+        response = user.post(
+            urls.register,
+            json={"email": test_user.email, "password": test_user.password},
+        )
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.json() == {
             "detail": "Пользователь с таким Email уже существует"
@@ -26,7 +32,9 @@ class TestRegister:
 
     @pytest.mark.asyncio
     async def test_login_unregistered_user(self, client):
-        response = client.post(urls.login, json=test_user.TEST_USER)
+        response = client.post(
+            urls.login, json={"email": test_user.email, "password": test_user.password}
+        )
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.json() == {"detail": "Пользователь с таким Email не существует"}
 
@@ -34,14 +42,19 @@ class TestRegister:
 class TestLogin:
     @pytest.mark.asyncio
     async def test_login_user(self, user):
-        response = user.post(urls.login, json=test_user.TEST_USER)
+        response = user.post(
+            urls.login, json={"email": test_user.email, "password": test_user.password}
+        )
         assert response.status_code == status.HTTP_202_ACCEPTED
         assert "access_token" in response.json()
         assert "refresh_token" in response.json()
 
     @pytest.mark.asyncio
     async def test_wrong_password_login(self, user):
-        response = user.post(urls.login, json=test_user.TEST_USER_WITH_WRONG_PASSWORD)
+        response = user.post(
+            urls.login,
+            json={"email": test_user.email, "password": test_user.wrong_password},
+        )
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
         assert response.json() == {"detail": "Неверный пароль"}
 

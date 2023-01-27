@@ -11,7 +11,7 @@ class TestProfileEndpoints:
             urls.user_info,
         )
         assert response.status_code == status.HTTP_200_OK
-        assert response.json() == test_user.USER_INFO
+        assert response.json() == {"email": test_user.email, "phone": None}
 
     @pytest.mark.asyncio
     async def test_user_update_email(self, auth_client):

@@ -1,3 +1,5 @@
+import typing
+
 import pytest_asyncio
 from app.database import Base, get_session
 from app.main import app as main_app
@@ -23,14 +25,14 @@ Session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 
 @pytest_asyncio.fixture(autouse=True)
-async def app():
+async def app() -> typing.AsyncGenerator:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield main_app
 
 
 @pytest_asyncio.fixture
-async def db_session(app: FastAPI):
+async def db_session(app: FastAPI) -> typing.AsyncGenerator:
     connection = await engine.connect()
     transaction = await connection.begin()
     session = Session(bind=connection)
@@ -41,7 +43,7 @@ async def db_session(app: FastAPI):
 
 
 @pytest_asyncio.fixture
-async def client(app: FastAPI, db_session: Session):
+async def client(app: FastAPI, db_session: Session) -> typing.AsyncGenerator:
     async def _get_test_db():
         yield db_session
 
@@ -51,15 +53,21 @@ async def client(app: FastAPI, db_session: Session):
 
 
 @pytest_asyncio.fixture
-async def auth_client(client: TestClient):
-    client.post(urls.register, json=test_user.TEST_USER)
-    response = client.post(urls.login, json=test_user.TEST_USER)
+async def auth_client(client: TestClient) -> typing.AsyncGenerator:
+    client.post(
+        urls.register, json={"email": test_user.email, "password": test_user.password}
+    )
+    response = client.post(
+        urls.login, json={"email": test_user.email, "password": test_user.password}
+    )
     access_token = response.json().get("access_token")
     client.headers.update({"Authorization": access_token})
     yield client
 
 
 @pytest_asyncio.fixture
-async def user(client: TestClient):
-    client.post(urls.register, json=test_user.TEST_USER)
+async def user(client: TestClient) -> typing.AsyncGenerator:
+    client.post(
+        urls.register, json={"email": test_user.email, "password": test_user.password}
+    )
     yield client
