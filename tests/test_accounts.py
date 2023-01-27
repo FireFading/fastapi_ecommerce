@@ -14,19 +14,19 @@ test_user = TestUser()
 class TestAccountsEndpoints:
     @pytest.mark.asyncio
     async def test_login_unregistered_user(self, client):
-        response = client.post(urls.LOGIN_URL, json=test_user.TEST_USER)
+        response = client.post(urls.login, json=test_user.TEST_USER)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.json() == {"detail": "Пользователь с таким Email не существует"}
 
     @pytest.mark.asyncio
     async def test_register_user(self, client):
-        response = client.post(urls.REGISTER_URL, json=test_user.TEST_USER)
+        response = client.post(urls.register, json=test_user.TEST_USER)
         assert response.status_code == status.HTTP_201_CREATED
         assert response.json() == {"email": test_user.TEST_USER.get("email")}
 
     @pytest.mark.asyncio
     async def test_login_user(self, client):
-        response = client.post(urls.LOGIN_URL, json=test_user.TEST_USER)
+        response = client.post(urls.login, json=test_user.TEST_USER)
         assert response.status_code == status.HTTP_202_ACCEPTED
         assert "access_token" in response.json()
         assert "refresh_token" in response.json()
@@ -35,16 +35,14 @@ class TestAccountsEndpoints:
 
     @pytest.mark.asyncio
     async def test_wrong_password_login(self, client):
-        response = client.post(
-            urls.LOGIN_URL, json=test_user.TEST_USER_WITH_WRONG_PASSWORD
-        )
+        response = client.post(urls.login, json=test_user.TEST_USER_WITH_WRONG_PASSWORD)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
         assert response.json() == {"detail": "Неверный пароль"}
 
     @pytest.mark.asyncio
     async def test_logout_user(self, client):
         response = client.delete(
-            urls.LOGOUT_URL, headers={"Authorization": tokens.get("access_token")}
+            urls.logout, headers={"Authorization": tokens.get("access_token")}
         )
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == {"detail": "Вы вышли из аккаунта"}
@@ -52,33 +50,44 @@ class TestAccountsEndpoints:
     @pytest.mark.asyncio
     async def test_user_forgot_password(self, client, mocker: MockerFixture):
         mocker.patch("app.routers.accounts.send_mail", return_value=True)
-        response = client.post(
-            urls.FORGOT_PASSWORD_URL, json={"email": test_user.email}
-        )
+        response = client.post(urls.forgot_password, json={"email": test_user.email})
         assert response.status_code == status.HTTP_202_ACCEPTED
         assert response.json() == {
             "detail": "Письмо с токеном для сброса пароля отправлено"
         }
 
     @pytest.mark.asyncio
-    async def test_reset_password(self, client):
+    async def test_user_reset_password(self, client):
         reset_password_token = create_reset_password_token(email=test_user.email)
         response = client.post(
-            f"{urls.RESET_PASSWORD_URL}{reset_password_token}",
+            f"{urls.reset_password}{reset_password_token}",
             json={
                 "password": test_user.new_password,
                 "confirm_password": test_user.new_password,
             },
         )
-        assert response.status_code == status.HTTP_200_OK
+        assert response.status_code == status.HTTP_202_ACCEPTED
         assert response.json() == {"detail": "Пароль успешно сброшен"}
+
+    @pytest.mark.asyncio
+    async def test_user_change_password(self, client):
+        response = client.post(
+            urls.change_password,
+            json={
+                "password": test_user.new_password,
+                "confirm_password": test_user.new_password,
+            },
+            headers={"Authorization": tokens.get("access_token")},
+        )
+        assert response.status_code == status.HTTP_202_ACCEPTED
+        assert response.json() == {"detail": "Пароль успешно обновлен"}
 
 
 class TestProfileEndpoints:
     @pytest.mark.asyncio
     async def test_user_info(self, client):
         response = client.get(
-            urls.USER_INFO_URL,
+            urls.user_info,
             headers={"Authorization": tokens.get("access_token")},
         )
         assert response.status_code == status.HTTP_200_OK
@@ -87,7 +96,7 @@ class TestProfileEndpoints:
     @pytest.mark.asyncio
     async def test_user_update_email(self, client):
         response = client.post(
-            urls.UPDATE_EMAIL_URL,
+            urls.update_email,
             headers={"Authorization": tokens.get("access_token")},
             json={"email": test_user.new_email},
         )
@@ -100,7 +109,7 @@ class TestProfileEndpoints:
     @pytest.mark.asyncio
     async def test_user_update_phone(self, client):
         response = client.post(
-            urls.UPDATE_PHONE_URL,
+            urls.update_phone,
             headers={"Authorization": tokens.get("access_token")},
             json={"phone": test_user.new_phone},
         )

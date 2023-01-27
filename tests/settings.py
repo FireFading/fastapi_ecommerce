@@ -1,12 +1,13 @@
 class Urls:
-    LOGIN_URL = "/accounts/login/"
-    REGISTER_URL = "/accounts/register/"
-    LOGOUT_URL = "/accounts/logout/"
-    USER_INFO_URL = "/accounts/profile/"
-    UPDATE_EMAIL_URL = "/accounts/profile/update-email/"
-    UPDATE_PHONE_URL = "/accounts/profile/update-phone/"
-    FORGOT_PASSWORD_URL = "/accounts/forgot-password/"
-    RESET_PASSWORD_URL = "/accounts/reset-password/"
+    login = "/accounts/login/"
+    register = "/accounts/register/"
+    logout = "/accounts/logout/"
+    user_info = "/accounts/profile/"
+    update_email = "/accounts/profile/update-email/"
+    update_phone = "/accounts/profile/update-phone/"
+    forgot_password = "/accounts/forgot-password/"
+    reset_password = "/accounts/reset-password/"
+    change_password = "/accounts/change-password/"
 
 
 class TestUser:

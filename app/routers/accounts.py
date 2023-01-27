@@ -166,7 +166,7 @@ async def reset_password(
             detail="Пароли не совпадают",
         )
     email = authorize.get_jwt_subject()
-    user = crud_users.get_user_by_email(db=db, email=email)
+    user = await crud_users.get_user_by_email(db=db, email=email)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
