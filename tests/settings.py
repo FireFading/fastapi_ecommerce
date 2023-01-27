@@ -1,3 +1,9 @@
+from datetime import datetime
+
+import jwt
+from app.settings import settings
+
+
 class Urls:
     login = "/accounts/login/"
     register = "/accounts/register/"
@@ -27,13 +33,15 @@ class TestUser:
 
     USER_INFO = {"email": email, "phone": None}
 
-    UPDATE_EMAIL_TEST_USER = {"email": new_email, "password": password}
-    UPDATE_PHONE_TEST_USER = {
-        "phone": new_phone,
-        "email": new_email,
-        "password": password,
-    }
-
 
 urls = Urls()
 test_user = TestUser()
+
+
+def create_fake_token(
+    expires_in: datetime = datetime(1999, 1, 1), email: str = test_user.email
+) -> str:
+    to_encode = {"exp": expires_in, "email": email, "is_active": True}
+    return jwt.encode(to_encode, settings.secret_key, settings.algorithm).decode(
+        "utf-8"
+    )

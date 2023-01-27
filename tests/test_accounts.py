@@ -1,10 +1,12 @@
+from datetime import datetime
+
 import pytest
 
 from app.utils import create_reset_password_token
 from fastapi import status
 from pytest_mock import MockerFixture
 
-from tests.settings import test_user, urls
+from tests.settings import create_fake_token, test_user, urls
 
 
 class TestAccountsEndpoints:
@@ -13,6 +15,14 @@ class TestAccountsEndpoints:
         response = client.post(urls.register, json=test_user.TEST_USER)
         assert response.status_code == status.HTTP_201_CREATED
         assert response.json() == {"email": test_user.TEST_USER.get("email")}
+
+    @pytest.mark.asyncio
+    async def test_failed_repeate_register_user(self, user):
+        response = user.post(urls.register, json=test_user.TEST_USER)
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.json() == {
+            "detail": "Пользователь с таким Email уже существует"
+        }
 
     @pytest.mark.asyncio
     async def test_login_unregistered_user(self, client):
@@ -49,6 +59,15 @@ class TestAccountsEndpoints:
         }
 
     @pytest.mark.asyncio
+    async def test_unregistered_user_forgot_password(
+        self, client, mocker: MockerFixture
+    ):
+        mocker.patch("app.routers.accounts.send_mail", return_value=True)
+        response = client.post(urls.forgot_password, json={"email": test_user.email})
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert response.json() == {"detail": "Пользователь не найден"}
+
+    @pytest.mark.asyncio
     async def test_user_reset_password(self, user):
         reset_password_token = create_reset_password_token(email=test_user.email)
         response = user.post(
@@ -60,6 +79,47 @@ class TestAccountsEndpoints:
         )
         assert response.status_code == status.HTTP_202_ACCEPTED
         assert response.json() == {"detail": "Пароль успешно сброшен"}
+
+    @pytest.mark.asyncio
+    async def test_user_reset_password_with_invalid_token(
+        self, user, mocker: MockerFixture
+    ):
+        reset_password_token = create_fake_token()
+        response = user.post(
+            f"{urls.reset_password}{reset_password_token}",
+            json={
+                "password": test_user.new_password,
+                "confirm_password": test_user.new_password,
+            },
+        )
+        assert response.status_code == status.HTTP_203_NON_AUTHORITATIVE_INFORMATION
+        assert response.json() == {"detail": "Токен недействителен"}
+
+    @pytest.mark.asyncio
+    async def test_unregistered_user_reset_password(self, client):
+        reset_password_token = create_reset_password_token(email=test_user.email)
+        response = client.post(
+            f"{urls.reset_password}{reset_password_token}",
+            json={
+                "password": test_user.new_password,
+                "confirm_password": test_user.new_password,
+            },
+        )
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert response.json() == {"detail": "Пользователь не найден"}
+
+    @pytest.mark.asyncio
+    async def test_user_reset_password_not_match_password(self, user):
+        reset_password_token = create_reset_password_token(email=test_user.email)
+        response = user.post(
+            f"{urls.reset_password}{reset_password_token}",
+            json={
+                "password": test_user.new_password,
+                "confirm_password": test_user.wrong_password,
+            },
+        )
+        assert response.status_code == status.HTTP_203_NON_AUTHORITATIVE_INFORMATION
+        assert response.json() == {"detail": "Пароли не совпадают"}
 
     @pytest.mark.asyncio
     async def test_user_change_password(self, auth_client):

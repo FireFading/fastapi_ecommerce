@@ -27,10 +27,12 @@ def create_reset_password_token(email: str) -> str:
 
 
 def verify_reset_password_token(token: str) -> bool:
-    token_data = jwt.decode(
-        jwt=token, key=settings.secret_key, algorithms=[settings.algorithm]
-    )
-    print(token_data)
+    try:
+        token_data = jwt.decode(
+            jwt=token, key=settings.secret_key, algorithms=[settings.algorithm]
+        )
+    except jwt.exceptions.ExpiredSignatureError:
+        return False
     expires_in = token_data.get("exp")
     is_active = token_data.get("is_active")
     return bool(datetime.now(timezone.utc).timestamp() < expires_in and is_active)
