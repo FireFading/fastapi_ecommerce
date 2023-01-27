@@ -15,6 +15,7 @@ class TestUser:
     wrong_email = "wrong_test@mail.ru"
     new_phone = "89101111111"
     password = "TestPassword"
+    new_password = "NewTestPassword"
     wrong_password = "WrongTestPassword"
 
     TEST_USER = {"email": email, "password": password}

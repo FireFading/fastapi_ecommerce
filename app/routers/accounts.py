@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.crud import DBUsers
 from app.database import get_session
 from app.models import User as m_User
-from app.schemas import Email, LoginCredentials, Phone, ResetPassword, User
+from app.schemas import Email, LoginCredentials, UpdatePassword, User
 from app.settings import JWTSettings, settings
 from app.utils import (
     create_reset_password_token,
@@ -92,7 +92,7 @@ async def logout(authorize: AuthJWT = Depends()):
 
 @router.post(
     "/forgot-password/",
-    status_code=status.HTTP_200_OK,
+    status_code=status.HTTP_202_ACCEPTED,
     summary="Запрос на получение письма с токеном для сброса пароля",
 )
 async def forgot_password(data: Email, db: AsyncSession = Depends(get_session)):
@@ -109,7 +109,7 @@ async def forgot_password(data: Email, db: AsyncSession = Depends(get_session)):
     body = html_reset_password_mail(reset_password_token=reset_password_token)
     await send_mail(subject=subject, recipients=recipients, body=body)
     return JSONResponse(
-        status_code=200,
+        status_code=status.HTTP_202_ACCEPTED,
         content={"detail": "Письмо с токеном для сброса пароля отправлено"},
     )
 
@@ -120,7 +120,7 @@ async def forgot_password(data: Email, db: AsyncSession = Depends(get_session)):
     summary="Сброс пароля",
 )
 async def reset_password(
-    token: str, data: ResetPassword, db: AsyncSession = Depends(get_session)
+    token: str, data: UpdatePassword, db: AsyncSession = Depends(get_session)
 ):
     if not verify_reset_password_token(token=token):
         raise HTTPException(
@@ -146,4 +146,42 @@ async def reset_password(
     return JSONResponse(
         status_code=status.HTTP_202_ACCEPTED,
         content={"detail": "Пароль успешно сброшен"},
+    )
+
+
+@router.post(
+    "/change-password/",
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="Изменение пароля",
+)
+async def reset_password(
+    data: UpdatePassword,
+    db: AsyncSession = Depends(get_session),
+    authorize: AuthJWT = Depends(),
+):
+    authorize.jwt_required()
+    if data.password != data.confirm_password:
+        raise HTTPException(
+            status_code=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION,
+            detail="Пароли не совпадают",
+        )
+    email = authorize.get_jwt_subject()
+    user = crud_users.get_user_by_email(db=db, email=email)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Пользователь не найден",
+        )
+    if user.password == data.password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Новый пароль похож на старый",
+        )
+    new_hashed_password = get_hashed_password(password=data.password)
+    await crud_users.update_password(
+        db=db, user=user, new_hashed_password=new_hashed_password
+    )
+    return JSONResponse(
+        status_code=status.HTTP_202_ACCEPTED,
+        content={"detail": "Пароль успешно обновлен"},
     )

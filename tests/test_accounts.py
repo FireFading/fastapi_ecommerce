@@ -1,4 +1,6 @@
 import pytest
+
+from app.utils import create_reset_password_token
 from fastapi import status
 from pytest_mock import MockerFixture
 
@@ -53,10 +55,23 @@ class TestAccountsEndpoints:
         response = client.post(
             urls.FORGOT_PASSWORD_URL, json={"email": test_user.email}
         )
-        assert response.status_code == status.HTTP_200_OK
+        assert response.status_code == status.HTTP_202_ACCEPTED
         assert response.json() == {
             "detail": "Письмо с токеном для сброса пароля отправлено"
         }
+
+    @pytest.mark.asyncio
+    async def test_reset_password(self, client):
+        reset_password_token = create_reset_password_token(email=test_user.email)
+        response = client.post(
+            f"{urls.RESET_PASSWORD_URL}{reset_password_token}",
+            json={
+                "password": test_user.new_password,
+                "confirm_password": test_user.new_password,
+            },
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json() == {"detail": "Пароль успешно сброшен"}
 
 
 class TestProfileEndpoints:

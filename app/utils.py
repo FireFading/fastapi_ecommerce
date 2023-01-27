@@ -15,27 +15,31 @@ def verify_password(password: str, hashed_password: str) -> bool:
     return bcrypt.checkpw(password.encode(), hashed_password)
 
 
-def create_reset_password_token(email: str, expires_delta: int = None) -> str:
-    if expires_delta is not None:
-        expires_in = datetime.now(timezone.utc) + expires_delta
-    else:
-        expires_in = datetime.now(timezone.utc) + timedelta(
-            hours=settings.reset_password_token_expire_hours
-        )
-
+def create_reset_password_token(email: str) -> str:
+    expires_in = (
+        datetime.now(timezone.utc)
+        + timedelta(hours=settings.reset_password_token_expire_hours)
+    ).timestamp()
     to_encode = {"exp": expires_in, "email": email, "is_active": True}
-    return jwt.encode(to_encode, settings.secret_key, settings.algorithm)
+    return jwt.encode(to_encode, settings.secret_key, settings.algorithm).decode(
+        "utf-8"
+    )
 
 
 def verify_reset_password_token(token: str) -> bool:
-    token_data = jwt.decode(token)
+    token_data = jwt.decode(
+        jwt=token, key=settings.secret_key, algorithms=[settings.algorithm]
+    )
+    print(token_data)
     expires_in = token_data.get("exp")
     is_active = token_data.get("is_active")
-    return bool(datetime.now(timezone.utc) < expires_in and is_active)
+    return bool(datetime.now(timezone.utc).timestamp() < expires_in and is_active)
 
 
 def get_email_from_reset_password_token(token: str) -> str:
-    token_data = jwt.decode(token)
+    token_data = jwt.decode(
+        jwt=token, key=settings.secret_key, algorithms=[settings.algorithm]
+    )
     return token_data.get("email")
 
 

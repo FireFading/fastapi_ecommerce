@@ -22,6 +22,6 @@ class Phone(BaseModel):
     phone: str
 
 
-class ResetPassword(BaseModel):
+class UpdatePassword(BaseModel):
     password: str
     confirm_password: str
