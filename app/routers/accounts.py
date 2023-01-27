@@ -154,7 +154,7 @@ async def reset_password(
     status_code=status.HTTP_202_ACCEPTED,
     summary="Изменение пароля",
 )
-async def reset_password(
+async def change_password(
     data: UpdatePassword,
     db: AsyncSession = Depends(get_session),
     authorize: AuthJWT = Depends(),
@@ -172,7 +172,7 @@ async def reset_password(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Пользователь не найден",
         )
-    if user.password == data.password:
+    if verify_password(password=data.password, hashed_password=user.password):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Новый пароль похож на старый",

@@ -142,3 +142,27 @@ class TestChangePassword:
         )
         assert response.status_code == status.HTTP_202_ACCEPTED
         assert response.json() == {"detail": "Пароль успешно обновлен"}
+
+    @pytest.mark.asyncio
+    async def test_user_change_password_not_match(self, auth_client):
+        response = auth_client.post(
+            urls.change_password,
+            json={
+                "password": test_user.new_password,
+                "confirm_password": test_user.wrong_password,
+            },
+        )
+        assert response.status_code == status.HTTP_203_NON_AUTHORITATIVE_INFORMATION
+        assert response.json() == {"detail": "Пароли не совпадают"}
+
+    @pytest.mark.asyncio
+    async def test_user_change_password_to_old(self, auth_client):
+        response = auth_client.post(
+            urls.change_password,
+            json={
+                "password": test_user.password,
+                "confirm_password": test_user.password,
+            },
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.json() == {"detail": "Новый пароль похож на старый"}
