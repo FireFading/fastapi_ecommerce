@@ -31,3 +31,9 @@ class TestProfileEndpoints:
         )
         assert response.status_code == status.HTTP_202_ACCEPTED
         assert response.json() == {"detail": "Телефон успешно обновлен"}
+
+    @pytest.mark.asyncio
+    async def test_user_delete_profile(self, auth_client):
+        response = auth_client.delete(urls.delete_profile)
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json() == {"detail": "Профиль успешно удален"}

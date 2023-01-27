@@ -14,6 +14,7 @@ class Urls:
     forgot_password = "/accounts/forgot-password/"
     reset_password = "/accounts/reset-password/"
     change_password = "/accounts/change-password/"
+    delete_profile = "/accounts/profile/delete/"
 
 
 class TestUser:

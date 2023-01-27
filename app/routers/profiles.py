@@ -91,3 +91,22 @@ async def update_phone(
         status_code=status.HTTP_202_ACCEPTED,
         content={"detail": "Телефон успешно обновлен"},
     )
+
+
+@router.delete("/delete/", status_code=status.HTTP_200_OK, summary="Удаление профиля")
+async def delete_profile(
+    db: AsyncSession = Depends(get_session), authorize: AuthJWT = Depends()
+):
+    authorize.jwt_required()
+    email = authorize.get_jwt_subject()
+    user = await crud_users.get_user_by_email(db=db, email=email)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Пользователь не найден",
+        )
+    await crud_users.delete(db=db, user=user)
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={"detail": "Профиль успешно удален"},
+    )
