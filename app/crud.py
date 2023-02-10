@@ -54,6 +54,11 @@ class DBUsers(CRUD):
         await db.flush()
         await db.commit()
 
+    async def activate_account(self, db: AsyncSession, user: m_User):
+        user.is_active = True
+        await db.flush()
+        await db.commit()
+
     async def delete(self, db: AsyncSession, user: m_User):
         await db.delete(user)
         await db.commit()

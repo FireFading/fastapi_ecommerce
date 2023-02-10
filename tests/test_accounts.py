@@ -17,7 +17,11 @@ class TestRegister:
             json={"email": test_user.email, "password": test_user.password},
         )
         assert response.status_code == status.HTTP_201_CREATED
-        assert response.json() == {"email": test_user.email}
+        assert response.json().get("email") == test_user.email
+        assert (
+            response.json().get("detail")
+            == "На почту отправлено письмо для подтверждения регистрации"
+        )
 
     @pytest.mark.asyncio
     async def test_failed_repeate_register_user(self, user):

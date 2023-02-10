@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Float, String
+from sqlalchemy import Boolean, Column, Float, String
 from sqlalchemy_utils import UUIDType
 
 from app.database import Base
@@ -8,6 +8,7 @@ class User(Base):
     __tablename__ = "users"
 
     user_id = Column(UUIDType(binary=False), primary_key=True, index=True)
+    is_active = Column(Boolean)
     email = Column(String, unique=True)
     phone = Column(String, unique=True, nullable=True)
     password = Column(String)

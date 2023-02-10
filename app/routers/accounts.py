@@ -9,16 +9,12 @@ from app.crud import DBUsers
 from app.database import get_session
 from app.models import User as m_User
 from app.schemas import Email, LoginCredentials, UpdatePassword, User
-from app.settings import JWTSettings, settings
-from app.utils import (
-    create_reset_password_token,
-    get_email_from_reset_password_token,
-    get_hashed_password,
-    html_reset_password_mail,
-    send_mail,
-    verify_password,
-    verify_reset_password_token,
-)
+from app.settings import JWTSettings
+from app.templates.activate_account import html_activate_account_mail
+from app.templates.reset_password import html_reset_password_mail
+from app.utils.mail import send_mail
+from app.utils.password import get_hashed_password, verify_password
+from app.utils.tokens import create_token, get_email_from_token, verify_token
 
 
 crud_users = DBUsers()
@@ -40,7 +36,8 @@ def get_jwt_settings():
     summary="Регистрация пользователя",
 )
 async def register(user: LoginCredentials, db: AsyncSession = Depends(get_session)):
-    db_user = await crud_users.get_user_by_email(db=db, email=user.email)
+    email = user.email
+    db_user = await crud_users.get_user_by_email(db=db, email=email)
     if db_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -48,10 +45,41 @@ async def register(user: LoginCredentials, db: AsyncSession = Depends(get_sessio
         )
     user_id = uuid.uuid4()
     hashed_password = get_hashed_password(password=user.password)
-    create_user = m_User(email=user.email, password=hashed_password, user_id=user_id)
+    create_user = m_User(
+        email=email, password=hashed_password, user_id=user_id, is_active=False
+    )
     await crud_users.create(db=db, db_user=create_user)
+    subject = "Завершение регистрации"
+    token = create_token(email=email)
+    body = html_activate_account_mail(token=token)
+    await send_mail(subject=subject, recipients=[email], body=body)
     return JSONResponse(
-        status_code=status.HTTP_201_CREATED, content={"email": user.email}
+        status_code=status.HTTP_201_CREATED,
+        content={
+            "email": email,
+            "detail": "На почту отправлено письмо для подтверждения регистрации",
+        },
+    )
+
+
+@router.post("/activate-account/{token}")
+async def activate_account(token: str, db: AsyncSession = Depends(get_session)):
+    if not verify_token(token=token):
+        raise HTTPException(
+            status_code=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION,
+            detail="Токен недействителен",
+        )
+    email = get_email_from_token(token=token)
+    user = await crud_users.get_user_by_email(db=db, email=email)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Пользователь не найден",
+        )
+    await crud_users.activate_account(db=db, user=user)
+    return JSONResponse(
+        status_code=status.HTTP_202_ACCEPTED,
+        content={"detail": "Ваш аккаунт успешно активирован"},
     )
 
 
@@ -102,7 +130,7 @@ async def forgot_password(data: Email, db: AsyncSession = Depends(get_session)):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Пользователь не найден",
         )
-    reset_password_token = create_reset_password_token(email=user.email)
+    reset_password_token = create_token(email=user.email)
 
     subject = "Reset password"
     recipients = [user.email]
@@ -122,12 +150,12 @@ async def forgot_password(data: Email, db: AsyncSession = Depends(get_session)):
 async def reset_password(
     token: str, data: UpdatePassword, db: AsyncSession = Depends(get_session)
 ):
-    if not verify_reset_password_token(token=token):
+    if not verify_token(token=token):
         raise HTTPException(
             status_code=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION,
             detail="Токен недействителен",
         )
-    email = get_email_from_reset_password_token(token=token)
+    email = get_email_from_token(token=token)
     user = await crud_users.get_user_by_email(db=db, email=email)
     if not user:
         raise HTTPException(

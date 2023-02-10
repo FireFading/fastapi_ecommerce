@@ -1,32 +1,41 @@
+import os
 from datetime import timedelta
 from typing import Optional
 
+from dotenv import load_dotenv
 from pydantic import BaseSettings
+
+load_dotenv(dotenv_path="../")
 
 
 class JWTSettings(BaseSettings):
-    authjwt_secret_key: str = "secret"
-    authjwt_header_type: Optional[str] = None
-    authjwt_header_name: str = "Authorization"
-    access_token_expires: timedelta = timedelta(minutes=15)
-    refresh_token_expires: timedelta = timedelta(days=30)
+    authjwt_secret_key: str = os.getenv("AUTHJWT_SECRET_KEY")
+    authjwt_header_type: Optional[str] = os.getenv("AUTH_HEADER_TYPE")
+    authjwt_header_name: str = os.getenv("AUTHJWT_HEADER_NAME")
+    access_token_expires: timedelta = timedelta(
+        minutes=os.getenv("ACCESS_TOKEN_EXPIRES")
+    )
+    refresh_token_expires: timedelta = timedelta(
+        days=os.getenv("REFRESH_TOKEN_EXPIRES")
+    )
 
 
 class Settings(BaseSettings):
-    domain_name: str = ""
-    reset_password_token_expire_hours: int = 4
-    secret_key: str = "secret"
-    algorithm: str = "HS256"
+    domain_name: str = os.getenv("DOMAIN_NAME")
 
-    mail_username: str = "email@yandex.ru"
-    mail_password: str = "password"
-    mail_port: int = 537
-    mail_server: str = "smtp.yandex.ru"
-    mail_starttls: bool = True
-    mail_ssl_tls: bool = False
-    mail_from: str = "email@yandex.ru"
-    mail_from_name: str = "mail_from_name"
-    mail_validate_certs: bool = False
+    token_expire_hours: int = os.getenv("TOKEN_EXPIRES_HOURS")
+    secret_key: str = os.getenv("SECRET_KEY")
+    algorithm: str = os.getenv("ALGORITHM")
+
+    mail_username: str = os.getenv("MAIL_USERNAME")
+    mail_password: str = os.getenv("MAIL_PASSWORD")
+    mail_port: int = os.getenv("MAIL_PORT")
+    mail_server: str = os.getenv("MAIL_SERVER")
+    mail_starttls: bool = os.getenv("MAIL_STARTTLS")
+    mail_ssl_tls: bool = os.getenv("MAIL_SSL_TLS")
+    mail_from: str = os.getenv("MAIL_FROM")
+    mail_from_name: str = os.getenv("MAIL_FROM_NAME")
+    mail_validate_certs: bool = os.getenv("MAIL_VALIDATE_CERT")
 
 
 settings = Settings()
