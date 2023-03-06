@@ -47,9 +47,7 @@ class DBUsers(CRUD):
         await db.flush()
         await db.commit()
 
-    async def update_password(
-        self, db: AsyncSession, user: m_User, new_hashed_password: str
-    ):
+    async def update_password(self, db: AsyncSession, user: m_User, new_hashed_password: str):
         user.password = new_hashed_password
         await db.flush()
         await db.commit()

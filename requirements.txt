@@ -1,5 +1,6 @@
 aiosqlite
 bcrypt
+python-dotenv
 fastapi
 fastapi-jwt-auth
 fastapi_pagination

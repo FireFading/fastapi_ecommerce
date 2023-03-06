@@ -1,11 +1,10 @@
-from app.settings import settings
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema
+
+from app.settings import settings
 
 
 async def send_mail(subject: str, recipients: list, body: str):
-    message = MessageSchema(
-        subject=subject, recipients=recipients, body=body, subtype="html"
-    )
+    message = MessageSchema(subject=subject, recipients=recipients, body=body, subtype="html")
     conf = ConnectionConfig(
         MAIL_USERNAME=settings.mail_username,
         MAIL_PASSWORD=settings.mail_password,

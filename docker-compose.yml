@@ -1,5 +1,6 @@
 services:
   app:
+    container_name: fastapi
     build: .
     restart: on-failure
     ports:
@@ -8,13 +9,92 @@ services:
       DATABASE_URL: "sqlite+aiosqlite:///./test.db"
     env_file:
       - .env
+    links:
+      - fluent-bit
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: fastapi_logs
+    networks:
+      - elk
     # depends_on:
     #   - db
-  # db:
-  #   image: postgres:alpine
-  #   ports:
-  #     - "5432:5432"
-  #   env_file:
-  #     - .env
-  #   volumes:
-  #     - ./postgres-data:/var/lib/postgresql/data:cached
+    # db:
+    #   image: postgres:alpine
+    #   ports:
+    #     - "5432:5432"
+    #   env_file:
+    #     - .env
+    #   volumes:
+    #     - ./postgres-data:/var/lib/postgresql/data:cached
+
+    # nginx:
+    #   container_name: nginx
+    #   image: nginx
+    #   ports:
+    #     - 80:80
+    #   volumes:
+    #     - ./config/nginx.conf:/etc/nginx/nginx.conf
+
+  fluent-bit:
+    container_name: fluent-bit
+    image: fluent/fluent-bit
+    ports:
+      - 24224:24224
+      - 24224:24224/udp
+    volumes:
+      - ./config/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
+    depends_on:
+      - elasticsearch
+    networks:
+      - elk
+
+  elasticsearch:
+    container_name: elasticsearch
+    image: elasticsearch:8.6.2
+    restart: always
+    ports:
+      - 9200:9200
+    volumes:
+      - type: bind
+        source: ./config/elasticsearch.yml
+        target: /usr/share/elasticsearch/config/elasticsearch.yml
+      # - ./elasticsearch_data:/usr/share/elasticsearch/data
+    environment:
+      - cluster.name=docker-cluster
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - ELASTIC_PASSWORD=changeme
+    networks:
+      - elk
+
+  kibana:
+    container_name: kibana
+    image: kibana:8.6.2
+    restart: always
+    depends_on:
+      - elasticsearch
+    ports:
+      - 5601:5601
+    volumes:
+      - type: bind
+        source: ./config/kibana.yml
+        target: /usr/share/kibana/config/kibana.yml
+      # - ./kibana_data:/usr/share/kibana/data
+    environment:
+      LASTICSEARCH_URL: http://elasticsearch:9200
+      ELASTICSEARCH_HOSTS: '["http://elasticsearch:9200"]'
+      XPACK_SECURITY_ENABLED: "true"
+    networks:
+      - elk
+
+networks:
+  elk:
+    driver: bridge
+
+# volumes:
+#   elasticsearch_data:
+#   kibana_data:
