@@ -1,4 +1,5 @@
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
+
 import pytest_asyncio
 from fastapi import FastAPI, status
 from fastapi.testclient import TestClient

@@ -1,8 +1,24 @@
-__pycache__
-.pytest_cache
-.vscode
+# Ignore Python bytecode files
+__pycache__/
 *.pyc
+
+# Ignore pytest cache
+.pytest_cache/
+
+# Ignore Visual Studio Code workspace settings
+.vscode/
+
+# Ignore macOS directory metadata
 .DS_Store
-.idea
+
+# Ignore PyCharm IDE settings
+.idea/
+
+# Ignore test database
 tests/test.db
+
+# Ignore Ruffus cache files
+.ruff_cache/
+
+# Ignore environment variables file
 .env

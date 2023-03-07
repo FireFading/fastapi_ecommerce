@@ -1,0 +1,65 @@
+[tool.black]
+target-version = ["py311"]
+line-length = 120
+skip-magic-trailing-comma = true
+
+
+[tool.pylint.main]
+extension-pkg-whitelist = "pydantic"
+py-version = "3.11"
+max-line-length = 120
+
+
+[tool.pylint.messages_control]
+disable = [
+    "arguments-differ", "missing-module-docstring", "missing-class-docstring", "missing-function-docstring",
+    "too-many-locals", "invalid-name", "too-few-public-methods", "broad-exception-caught", "unused-argument",
+    "fixme", "raise-missing-from", "duplicate-code"
+]
+
+
+
+[tool.ruff]
+select = [
+    "A", "C4", "C90", "E", "EM", "F", "FBT", "G", "I", "ICN", "INP", "ISC", "T10", "T20", "PGH", "PIE", "PL", "PYI",
+    "RSE", "RUF", "S", "SIM", "TID", "UP", "W", "YTT"
+]
+
+# RUF100 - Remove unused `noqa` directive
+ignore = ["RUF100"]
+
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+fixable = ["C4", "I"]
+unfixable = []
+
+mccabe = {"max-complexity" = 9}
+target-version = "py311"
+
+per-file-ignores = {"test*/*" = ["S101", "S105", "S106", "PLR0913"], "*/models/*" = ["A003"], "*/schemas/*" = ["A003"]}
+exclude = [
+    "migration",
+
+    # Exclude a variety of commonly ignored directories.
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv"
+]
+
+allowed-confusables = ["А", "Б", "В", "Г", "Д", "Е", "Ё", "Ж", "З", "И", "Й", "К", "Л", "М", "Н", "О", "П", "Р", "С", "Т", "У", "Ф", "Х", "Ц", "Ч", "Ш", "Щ", "Ъ", "Ы", "Ь", "Э", "Ю", "Я", "а", "б", "в", "г", "д", "е", "ё", "ж", "з", "и", "й", "к", "л", "м", "н", "о", "п", "р", "с", "т", "у", "ф", "х", "ц", "ч", "ш", "щ", "ъ", "ы", "ь", "э", "ю", "я"]
+line-length = 120

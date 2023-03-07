@@ -1,8 +1,7 @@
 add to .env:
 
     DOMAIN_NAME=
-
-    RESET_PASSWORD_TOKEN_EXPIRES_HOURS=
+    TOKEN_EXPIRES_HOURS=
 
     # password settings
     SECRET_KEY=
@@ -19,7 +18,7 @@ add to .env:
     MAIL_USERNAME=
     MAIL_PASSWORD=
     MAIL_PORT=
-    MAIL_SERVER=smtp.yandex.ru
+    MAIL_SERVER=
     MAIL_STARTTLS=
     MAIL_SSL_TLS=
     MAIL_FROM=

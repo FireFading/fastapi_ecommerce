@@ -115,7 +115,6 @@ class TestChangePassword:
             urls.change_password, json={"password": test_user.new_password, "confirm_password": test_user.new_password}
         )
         assert response.status_code == status.HTTP_202_ACCEPTED
-        print(response.json())
         assert response.json() == {"detail": "Пароль успешно обновлен"}
 
     @pytest.mark.asyncio
@@ -134,3 +133,4 @@ class TestChangePassword:
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.json() == {"detail": "Новый пароль похож на старый"}
+
