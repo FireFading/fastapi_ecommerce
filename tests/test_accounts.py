@@ -78,7 +78,7 @@ class TestResetPassword:
         assert response.json() == {"detail": "Пароль успешно сброшен"}
 
     @pytest.mark.asyncio
-    async def test_user_reset_password_with_invalid_token(self, register_user, client, mocker: MockerFixture):
+    async def test_user_reset_password_with_invalid_token(self, register_user, client):
         reset_password_token = create_fake_token()
         response = client.post(
             f"{urls.reset_password}{reset_password_token}",
