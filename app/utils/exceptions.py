@@ -1,7 +1,7 @@
 from app.crud import DBUsers
 from app.models import User
+from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import status, HTTPException
 
 crud_users = DBUsers()
 

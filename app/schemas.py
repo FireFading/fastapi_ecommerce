@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from pydantic import BaseModel
 
 
@@ -10,8 +8,8 @@ class LoginCredentials(BaseModel):
 
 class User(BaseModel):
     email: str
-    phone: str
-    password: str
+    name: str | None
+    phone: str | None
 
 
 class Email(BaseModel):
@@ -20,6 +18,10 @@ class Email(BaseModel):
 
 class Phone(BaseModel):
     phone: str
+
+
+class Name(BaseModel):
+    name: str
 
 
 class UpdatePassword(BaseModel):

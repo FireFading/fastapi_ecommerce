@@ -10,11 +10,15 @@ class Urls:
     register = "/accounts/register/"
     logout = "/accounts/logout/"
     user_info = "/accounts/profile/"
-    update_email = "/accounts/profile/update-email/"
-    update_phone = "/accounts/profile/update-phone/"
+
+    update_email = "/accounts/profile/update/email/"
+    update_phone = "/accounts/profile/update/phone/"
+    update_name = "/accounts/profile/update/name/"
+
     forgot_password = "/accounts/forgot-password/"
     reset_password = "/accounts/reset-password/"
     change_password = "/accounts/change-password/"
+
     delete_profile = "/accounts/profile/delete/"
 
 
@@ -22,7 +26,11 @@ class TestUser:
     email = "test@mail.ru"
     new_email = "new_test@mail.ru"
     wrong_email = "wrong_test@mail.ru"
+
     new_phone = "89101111111"
+
+    new_name = "UserName"
+
     password = "TestPassword"
     new_password = "NewTestPassword"
     wrong_password = "WrongTestPassword"

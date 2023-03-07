@@ -1,14 +1,15 @@
 from collections.abc import AsyncGenerator
 
 import pytest_asyncio
+
+from app.database import Base, get_session
+from app.main import app as main_app
 from fastapi import FastAPI, status
 from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from app.database import Base, get_session
-from app.main import app as main_app
 from tests.settings import test_user, urls
 
 SQLALCHEMY_DATABASE_URL = "sqlite+aiosqlite://"

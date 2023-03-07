@@ -9,7 +9,7 @@ class TestProfileEndpoints:
     async def test_user_info(self, auth_client):
         response = auth_client.get(urls.user_info)
         assert response.status_code == status.HTTP_200_OK
-        assert response.json() == {"email": test_user.email, "phone": None}
+        assert response.json() == {"email": test_user.email, "phone": None, "name": None}
 
     @pytest.mark.asyncio
     async def test_user_update_email(self, auth_client):
@@ -23,6 +23,12 @@ class TestProfileEndpoints:
         response = auth_client.post(urls.update_phone, json={"phone": test_user.new_phone})
         assert response.status_code == status.HTTP_202_ACCEPTED
         assert response.json() == {"detail": "Телефон успешно обновлен"}
+
+    @pytest.mark.asyncio
+    async def test_user_update_name(self, auth_client):
+        response = auth_client.post(urls.update_name, json={"name": test_user.new_phone})
+        assert response.status_code == status.HTTP_202_ACCEPTED
+        assert response.json() == {"detail": "Имя успешно обновлено"}
 
     @pytest.mark.asyncio
     async def test_user_delete_profile(self, auth_client):

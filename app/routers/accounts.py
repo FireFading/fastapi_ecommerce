@@ -11,10 +11,10 @@ from app.schemas import Email, LoginCredentials, UpdatePassword, User
 from app.settings import JWTSettings
 from app.templates.activate_account import html_activate_account_mail
 from app.templates.reset_password import html_reset_password_mail
+from app.utils.exceptions import get_user_or_404
 from app.utils.mail import send_mail
 from app.utils.password import get_hashed_password, verify_password
 from app.utils.tokens import create_token, get_email_from_token, verify_token
-from app.utils.exceptions import get_user_or_404
 
 crud_users = DBUsers()
 
@@ -95,7 +95,7 @@ async def reset_password(token: str, data: UpdatePassword, db: AsyncSession = De
     if data.password != data.confirm_password:
         raise HTTPException(status_code=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION, detail="Пароли не совпадают")
     new_hashed_password = get_hashed_password(password=data.password)
-    await crud_users.update_password(db=db, user=user, new_hashed_password=new_hashed_password)
+    await crud_users.update_profile(db=db, user=user, updated_fields={"password": new_hashed_password})
     return {"detail": "Пароль успешно сброшен"}
 
 
@@ -111,5 +111,5 @@ async def change_password(
     if verify_password(password=data.password, hashed_password=user.password):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Новый пароль похож на старый")
     new_hashed_password = get_hashed_password(password=data.password)
-    await crud_users.update_password(db=db, user=user, new_hashed_password=new_hashed_password)
+    await crud_users.update_profile(db=db, user=user, updated_fields={"password": new_hashed_password})
     return {"detail": "Пароль успешно обновлен"}
