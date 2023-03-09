@@ -24,3 +24,6 @@ add to .env:
     MAIL_FROM=
     MAIL_FROM_NAME=
     MAIL_VALIDATE_CERT=
+
+to run ruff:
+    `ruff --show-source --fix ./` in root
