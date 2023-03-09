@@ -1,37 +1,17 @@
-from abc import abstractmethod
-
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select as f_select
 
-from app.models import User as m_User
-
-
-class CRUD:
-    @abstractmethod
-    async def get(self, *args):
-        pass
-
-    @abstractmethod
-    async def create(self, *args):
-        pass
-
-    @abstractmethod
-    async def update(self, *args):
-        pass
-
-    @abstractmethod
-    async def delete(self, *args):
-        pass
+from app.crud.base import CRUD
+from app.models.users import User as m_User
 
 
 class DBUsers(CRUD):
-    async def create(self, db: AsyncSession, db_user: m_User) -> m_User:
-        db.add(db_user)
+    async def create(self, db: AsyncSession, user: m_User) -> m_User:
+        db.add(user)
         await db.flush()
         await db.commit()
 
-        return db_user
+        return user
 
     async def get(self, db: AsyncSession) -> list[m_User]:
         result = await db.execute(select(m_User))

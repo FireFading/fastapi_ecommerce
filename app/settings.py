@@ -1,5 +1,3 @@
-from typing import Optional
-
 from dotenv import load_dotenv
 from pydantic import BaseSettings, Field
 
@@ -8,7 +6,7 @@ load_dotenv(dotenv_path="../")
 
 class JWTSettings(BaseSettings):
     authjwt_secret_key: str = Field(env="AUTHJWT_SECRET_KEY")
-    authjwt_header_type: Optional[str] = Field(env="AUTH_HEADER_TYPE")
+    authjwt_header_type: str | None = Field(env="AUTH_HEADER_TYPE")
     authjwt_header_name: str = Field(env="AUTHJWT_HEADER_NAME")
     access_token_expires: int = Field(env="ACCESS_TOKEN_EXPIRES")
     refresh_token_expires: int = Field(env="REFRESH_TOKEN_EXPIRES")

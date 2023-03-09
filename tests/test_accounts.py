@@ -54,14 +54,14 @@ class TestLogout:
 class TestForgotPassword:
     @pytest.mark.asyncio
     async def test_user_forgot_password(self, register_user, client, mocker: MockerFixture):
-        mocker.patch("app.routers.accounts.send_mail", return_value=True)
+        mocker.patch("app.routers.users.send_mail", return_value=True)
         response = client.post(urls.forgot_password, json={"email": test_user.email})
         assert response.status_code == status.HTTP_202_ACCEPTED
         assert response.json() == {"detail": "Письмо с токеном для сброса пароля отправлено"}
 
     @pytest.mark.asyncio
     async def test_unregistered_user_forgot_password(self, client, mocker: MockerFixture):
-        mocker.patch("app.routers.accounts.send_mail", return_value=True)
+        mocker.patch("app.routers.users.send_mail", return_value=True)
         response = client.post(urls.forgot_password, json={"email": test_user.email})
         assert response.status_code == status.HTTP_404_NOT_FOUND
         assert response.json() == {"detail": "Пользователь с таким Email не существует"}

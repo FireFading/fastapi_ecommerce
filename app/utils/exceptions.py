@@ -1,7 +1,8 @@
-from app.crud import DBUsers
-from app.models import User
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.crud.users import DBUsers
+from app.models.users import User
 
 crud_users = DBUsers()
 

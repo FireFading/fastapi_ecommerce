@@ -4,10 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.crud import DBUsers
+from app.crud.users import DBUsers
 from app.database import get_session
-from app.models import User as m_User
-from app.schemas import Email, LoginCredentials, UpdatePassword, User
+from app.models.users import User as m_User
+from app.schemas import Email, LoginCredentials, UpdatePassword
 from app.settings import JWTSettings
 from app.templates.activate_account import html_activate_account_mail
 from app.templates.reset_password import html_reset_password_mail
@@ -35,7 +35,7 @@ async def register(user: LoginCredentials, db: AsyncSession = Depends(get_sessio
     user_id = uuid.uuid4()
     hashed_password = get_hashed_password(password=user.password)
     create_user = m_User(email=email, password=hashed_password, user_id=user_id, is_active=False)
-    await crud_users.create(db=db, db_user=create_user)
+    await crud_users.create(db=db, user=create_user)
     subject = "Завершение регистрации"
     token = create_token(email=email)
     body = html_activate_account_mail(token=token)

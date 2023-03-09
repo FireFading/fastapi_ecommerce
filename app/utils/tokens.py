@@ -14,8 +14,7 @@ def create_token(email: str) -> str:
 def verify_token(token: str) -> bool:
     try:
         token_data = jwt.decode(jwt=token, key=settings.secret_key, algorithms=[settings.algorithm])
-    except Exception as error:
-        print(error)
+    except Exception:
         return False
     expires_in = token_data.get("exp")
     is_active = token_data.get("is_active")

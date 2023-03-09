@@ -13,7 +13,9 @@ def html_activate_account_mail(token: str):
         </head>
         <body>
             <h3>Ваш аккаунт на {settings.domain_name} создан!</h3>
-            <p>Для завершения регистрации перейдите по <a href="{settings.domain_name}/reset-password/{token}">ссылке</a></p>
+            <p>Для завершения регистрации перейдите по
+                <a href="{settings.domain_name}/reset-password/{token}"> ссылке</a>
+            </p>
         </body>
         </html>
     """

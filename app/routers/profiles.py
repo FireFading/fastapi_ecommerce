@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.crud import DBUsers
+from app.crud.users import DBUsers
 from app.database import get_session
 from app.schemas import Email, Name, Phone, User
 from app.settings import JWTSettings
@@ -49,7 +49,7 @@ async def update_phone(data: Phone, db: AsyncSession = Depends(get_session), aut
 
 
 @router.post("/update/name/", status_code=status.HTTP_202_ACCEPTED, summary="Обновление имени в профиле")
-async def update_phone(data: Name, db: AsyncSession = Depends(get_session), authorize: AuthJWT = Depends()):
+async def update_name(data: Name, db: AsyncSession = Depends(get_session), authorize: AuthJWT = Depends()):
     authorize.jwt_required()
     email = authorize.get_jwt_subject()
     user = await get_user_or_404(email=email, db=db)
