@@ -21,6 +21,9 @@ class Urls:
 
     delete_profile = "/accounts/profile/delete/"
 
+    create_product = "/products/new/"
+    get_products = "/products/get/"
+
 
 class TestUser:
     email = "test@mail.ru"
@@ -38,6 +41,14 @@ class TestUser:
 
 urls = Urls()
 test_user = TestUser()
+
+
+test_product = {
+    "name": "test_product",
+    "description": "test_description",
+    "producer": "test_producer",
+    "price": 10000.0,
+}
 
 
 def create_fake_token(expires_in: datetime = datetime(1999, 1, 1), email: str = test_user.email) -> str:

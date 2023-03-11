@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.users import DBUsers
 from app.database import get_session
-from app.schemas import Email, Name, Phone, User
+from app.schemas.users import Email, Name, Phone, User
 from app.settings import JWTSettings
 from app.utils.exceptions import get_user_or_404
 

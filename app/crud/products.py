@@ -17,8 +17,10 @@ class DBProducts(CRUD):
         result = await db.execute(select(Product))
         return result.scalars().all()
 
-    async def get_by_id(self, product: Product, db: AsyncSession):
-        result = await db.execute(select(Product).filter(Product.name == product.name, Product.producer == product.producer))
+    async def get_by_params(self, product: Product, db: AsyncSession):
+        result = await db.execute(
+            select(Product).filter(Product.name == product.name, Product.producer == product.producer)
+        )
         return result.scalars().all()
 
     async def delete(self, db: AsyncSession, product: Product):

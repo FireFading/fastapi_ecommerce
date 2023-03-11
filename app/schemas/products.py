@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from sqlalchemy_utils import UUIDType
 
 
 class Product(BaseModel):

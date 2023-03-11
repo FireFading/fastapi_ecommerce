@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.crud.users import DBUsers
 from app.database import get_session
 from app.models.users import User as m_User
-from app.schemas import Email, LoginCredentials, UpdatePassword
+from app.schemas.users import Email, LoginCredentials, UpdatePassword
 from app.settings import JWTSettings
 from app.templates.activate_account import html_activate_account_mail
 from app.templates.reset_password import html_reset_password_mail

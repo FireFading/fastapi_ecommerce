@@ -1,9 +1,8 @@
 import pytest
-
-from app.utils.tokens import create_token
 from fastapi import status
 from pytest_mock import MockerFixture
 
+from app.utils.tokens import create_token
 from tests.settings import create_fake_token, test_user, urls
 
 
