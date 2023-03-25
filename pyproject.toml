@@ -12,30 +12,76 @@ max-line-length = 120
 
 [tool.pylint.messages_control]
 disable = [
-    "arguments-differ", "missing-module-docstring", "missing-class-docstring", "missing-function-docstring",
-    "too-many-locals", "invalid-name", "too-few-public-methods", "broad-exception-caught", "unused-argument",
-    "fixme", "raise-missing-from", "duplicate-code"
+    "arguments-differ",           # Disable warning about differing arguments in overridden method
+    "missing-module-docstring",   # Disable warning about missing module-level docstring
+    "missing-class-docstring",    # Disable warning about missing class-level docstring
+    "missing-function-docstring", # Disable warning about missing function-level docstring
+    "too-many-locals",            # Disable warning about too many local variables
+    "too-few-public-methods",     # Disable warning about too few public methods in a class
+    "broad-exception-caught",     # Disable warning about catching broad exceptions
+    "unused-argument",            # Disable warning about unused function arguments
+    "fixme",                      # Disable warning about TODOs
+    "raise-missing-from",         # Disable warning about not re-raising exceptions with "from"
 ]
-
 
 
 [tool.ruff]
 select = [
-    "A", "C4", "C90", "E", "EM", "F", "FBT", "G", "I", "ICN", "INP", "ISC", "T10", "T20", "PGH", "PIE", "PL", "PYI",
-    "RSE", "RUF", "S", "SIM", "TID", "UP", "W", "YTT"
+    "A",
+    "C4",
+    "C90",
+    "E",
+    "EM",
+    "F",
+    "FBT",
+    "G",
+    "I",
+    "ICN",
+    "INP",
+    "ISC",
+    "T10",
+    "T20",
+    "PGH",
+    "PIE",
+    "PL",
+    "PYI",
+    "RSE",
+    "RUF",
+    "S",
+    "SIM",
+    "TID",
+    "UP",
+    "W",
+    "YTT",
 ]
 
-# RUF100 - Remove unused `noqa` directive
-ignore = ["RUF100"]
+ignore = ["RUF100"] # RUF100 - Remove unused `noqa` directive
 
-# Allow autofix for all enabled rules (when `--fix`) is provided.
-fixable = ["C4", "I"]
-unfixable = []
+fixable = [
+    "C4",
+    "I",
+] # Allow autofix for all enabled rules (when `--fix`) is provided.
+unfixable = [] # Do not allow autofix for any unfixable rules
 
-mccabe = {"max-complexity" = 9}
+[tool.ruff.mccabe]
+max-complexity = 9  # Set maximum McCabe complexity
+
 target-version = "py311"
 
-per-file-ignores = {"test*/*" = ["S101", "S105", "S106", "PLR0913"], "*/models/*" = ["A003"], "*/schemas/*" = ["A003"]}
+[ruff.tool.per-file-ignores]
+"test*/*" = [ # Ignore certain rules for test files
+    "S101",
+    "S105",
+    "S106",
+    "PLR0913",
+]
+"*/models/*" = [ # Ignore certain rules for files in the models directory
+    "A003",
+]
+"*/schemas/*" = [ # Ignore certain rules for files in the schemas directory
+    "A003",
+]
+
 exclude = [
     "migration",
 
@@ -58,7 +104,7 @@ exclude = [
     "build",
     "dist",
     "node_modules",
-    "venv"
+    "venv",
 ]
 
 allowed-confusables = ["А", "Б", "В", "Г", "Д", "Е", "Ё", "Ж", "З", "И", "Й", "К", "Л", "М", "Н", "О", "П", "Р", "С", "Т", "У", "Ф", "Х", "Ц", "Ч", "Ш", "Щ", "Ъ", "Ы", "Ь", "Э", "Ю", "Я", "а", "б", "в", "г", "д", "е", "ё", "ж", "з", "и", "й", "к", "л", "м", "н", "о", "п", "р", "с", "т", "у", "ф", "х", "ц", "ч", "ш", "щ", "ъ", "ы", "ь", "э", "ю", "я"]
