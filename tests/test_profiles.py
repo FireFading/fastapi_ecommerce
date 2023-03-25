@@ -1,10 +1,28 @@
 import pytest
 from fastapi import status
 
+from app.utils.messages import messages
 from tests.settings import test_user, urls
 
 
 class TestProfileEndpoints:
+    @pytest.mark.asyncio
+    async def test_not_available_without_auth(self, client):
+        response = client.get(urls.user_info)
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+        response = client.post(urls.update_email)
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
+        response = client.post(urls.update_phone)
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
+        response = client.post(urls.update_name)
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
+        response = client.delete(urls.delete_profile)
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
     @pytest.mark.asyncio
     async def test_user_info(self, auth_client):
         response = auth_client.get(urls.user_info)
@@ -22,16 +40,16 @@ class TestProfileEndpoints:
     async def test_user_update_phone(self, auth_client):
         response = auth_client.post(urls.update_phone, json={"phone": test_user.new_phone})
         assert response.status_code == status.HTTP_202_ACCEPTED
-        assert response.json() == {"detail": "Телефон успешно обновлен"}
+        assert response.json().get("detail") == messages.PHONE_UPDATED
 
     @pytest.mark.asyncio
     async def test_user_update_name(self, auth_client):
         response = auth_client.post(urls.update_name, json={"name": test_user.new_phone})
         assert response.status_code == status.HTTP_202_ACCEPTED
-        assert response.json() == {"detail": "Имя успешно обновлено"}
+        assert response.json().get("detail") == messages.NAME_UPDATED
 
     @pytest.mark.asyncio
     async def test_user_delete_profile(self, auth_client):
         response = auth_client.delete(urls.delete_profile)
         assert response.status_code == status.HTTP_200_OK
-        assert response.json() == {"detail": "Профиль успешно удален"}
+        assert response.json().get("detail") == messages.PROFILE_DELETED

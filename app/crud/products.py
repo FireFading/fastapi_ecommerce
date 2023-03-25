@@ -1,3 +1,5 @@
+import uuid
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -17,10 +19,8 @@ class DBProducts(CRUD):
         result = await db.execute(select(Product))
         return result.scalars().all()
 
-    async def get_by_params(self, product: Product, db: AsyncSession):
-        result = await db.execute(
-            select(Product).filter(Product.name == product.name, Product.producer == product.producer)
-        )
+    async def get_by_uuid(self, product_id: uuid.UUID, db: AsyncSession):
+        result = await db.execute(select(Product).filter(Product.product_id == product_id))
         return result.scalars().all()
 
     async def delete(self, db: AsyncSession, product: Product):

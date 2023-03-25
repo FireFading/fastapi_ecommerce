@@ -9,6 +9,7 @@ from app.database import get_session
 from app.models.products import Product as m_Product
 from app.schemas.products import Product
 from app.settings import JWTSettings
+from app.utils.messages import messages
 
 router = APIRouter(prefix="/products", tags=["products"], responses={404: {"description": "Not found"}})
 
@@ -30,7 +31,7 @@ async def get_products(db: AsyncSession = Depends(get_session), authorize: AuthJ
 async def create_product(product: Product, db: AsyncSession = Depends(get_session), authorize: AuthJWT = Depends()):
     authorize.jwt_required()
     if await crud_products.get_by_params(product=product, db=db):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Данный продукт уже существует")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=messages.PRODUCT_ALREADY_EXISTS)
     new_product = m_Product(
         product_id=uuid.uuid4(),
         name=product.name,
@@ -39,12 +40,14 @@ async def create_product(product: Product, db: AsyncSession = Depends(get_sessio
         price=product.price,
     )
     await crud_products.create(db=db, product=new_product)
-    return {"detail": "Товар успешно создан"}
+    return {"detail": messages.PRODUCT_CREATED}
 
 
-@router.delete("/delete/", status_code=status.HTTP_200_OK, summary="Удаление продукта")
-async def delete_product(product: Product, db: AsyncSession = Depends(get_session), authorize: AuthJWT = Depends()):
+@router.delete("/delete/{product_id}", status_code=status.HTTP_200_OK, summary="Удаление продукта")
+async def delete_product(
+    product_id: uuid.UUID, db: AsyncSession = Depends(get_session), authorize: AuthJWT = Depends()
+):
     authorize.jwt_required()
-    db_product = await crud_products.get(product=product, db=db)
+    db_product = await crud_products.get_by_uuid(product_id=product_id, db=db)
     await crud_products.delete(db=db, product=db_product)
-    return {"detail": "Продукт успешно удален"}
+    return {"detail": messages.PRODUCT_DELETED}

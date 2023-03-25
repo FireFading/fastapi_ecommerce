@@ -7,6 +7,7 @@ from app.database import get_session
 from app.schemas.users import Email, Name, Phone, User
 from app.settings import JWTSettings
 from app.utils.exceptions import get_user_or_404
+from app.utils.messages import messages
 
 crud_users = DBUsers()
 
@@ -45,7 +46,7 @@ async def update_phone(data: Phone, db: AsyncSession = Depends(get_session), aut
     email = authorize.get_jwt_subject()
     user = await get_user_or_404(email=email, db=db)
     await crud_users.update_profile(db=db, user=user, updated_fields={"phone": data.phone})
-    return {"detail": "Телефон успешно обновлен"}
+    return {"detail": messages.PHONE_UPDATED}
 
 
 @router.post("/update/name/", status_code=status.HTTP_202_ACCEPTED, summary="Обновление имени в профиле")
@@ -54,7 +55,7 @@ async def update_name(data: Name, db: AsyncSession = Depends(get_session), autho
     email = authorize.get_jwt_subject()
     user = await get_user_or_404(email=email, db=db)
     await crud_users.update_profile(db=db, user=user, updated_fields={"name": data.name})
-    return {"detail": "Имя успешно обновлено"}
+    return {"detail": messages.NAME_UPDATED}
 
 
 @router.delete("/delete/", status_code=status.HTTP_200_OK, summary="Удаление профиля")
@@ -63,4 +64,4 @@ async def delete_profile(db: AsyncSession = Depends(get_session), authorize: Aut
     email = authorize.get_jwt_subject()
     user = await get_user_or_404(email=email, db=db)
     await crud_users.delete(db=db, user=user)
-    return {"detail": "Профиль успешно удален"}
+    return {"detail": messages.PROFILE_DELETED}
