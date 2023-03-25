@@ -19,7 +19,7 @@ class TestRegister:
     async def test_failed_repeat_register_user(self, register_user, client):
         response = client.post(urls.register, json={"email": test_user.email, "password": test_user.password})
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.json().get("detail") == messages.USER_NOT_FOUND
+        assert response.json().get("detail") == messages.USER_ALREADY_EXISTS
 
     @pytest.mark.asyncio
     async def test_login_unregistered_user(self, client):
