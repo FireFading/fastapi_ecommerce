@@ -57,31 +57,15 @@ select = [
 
 ignore = ["RUF100"] # RUF100 - Remove unused `noqa` directive
 
-fixable = [
-    "C4",
-    "I",
-] # Allow autofix for all enabled rules (when `--fix`) is provided.
-unfixable = [] # Do not allow autofix for any unfixable rules
+fixable = ["C4", "I"]
+unfixable = []
 
-[tool.ruff.mccabe]
-max-complexity = 9  # Set maximum McCabe complexity
 
+mccabe = {"max-complexity" = 9}
 target-version = "py311"
 
-[ruff.tool.per-file-ignores]
-"test*/*" = [ # Ignore certain rules for test files
-    "S101",
-    "S105",
-    "S106",
-    "PLR0913",
-]
-"*/models/*" = [ # Ignore certain rules for files in the models directory
-    "A003",
-]
-"*/schemas/*" = [ # Ignore certain rules for files in the schemas directory
-    "A003",
-]
 
+per-file-ignores = {"test*/*" = ["S101", "S105", "S106", "PLR0913"], "*/models/*" = ["A003"], "*/schemas/*" = ["A003"]}
 exclude = [
     "migration",
 
