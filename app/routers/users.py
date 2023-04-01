@@ -27,7 +27,11 @@ def get_jwt_settings():
     return JWTSettings()
 
 
-@router.post("/register/", status_code=status.HTTP_201_CREATED, summary="Регистрация пользователя")
+@router.post(
+    "/register/",
+    status_code=status.HTTP_201_CREATED,
+    summary="Регистрация пользователя",
+)
 async def register(user: LoginCredentials, db: AsyncSession = Depends(get_session)):
     email = user.email
     db_user = await crud_users.get_user_by_email(db=db, email=email)
@@ -44,10 +48,17 @@ async def register(user: LoginCredentials, db: AsyncSession = Depends(get_sessio
     return {"email": email, "detail": messages.CONFIRM_REGISTRATION_MAIL_SENT}
 
 
-@router.post("/activate-account/{token}", status_code=status.HTTP_202_ACCEPTED, summary="Активация аккаунта")
+@router.post(
+    "/activate-account/{token}",
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="Активация аккаунта",
+)
 async def activate_account(token: str, db: AsyncSession = Depends(get_session)):
     if not verify_token(token=token):
-        raise HTTPException(status_code=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION, detail=messages.INVALID_TOKEN)
+        raise HTTPException(
+            status_code=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION,
+            detail=messages.INVALID_TOKEN,
+        )
     email = get_email_from_token(token=token)
     user = await get_user_or_404(email=email, db=db)
     await crud_users.activate_account(db=db, user=user)
@@ -55,7 +66,11 @@ async def activate_account(token: str, db: AsyncSession = Depends(get_session)):
 
 
 @router.post("/login/", status_code=status.HTTP_200_OK, summary="Авторизация, получение токенов")
-async def login(user: LoginCredentials, db: AsyncSession = Depends(get_session), authorize: AuthJWT = Depends()):
+async def login(
+    user: LoginCredentials,
+    db: AsyncSession = Depends(get_session),
+    authorize: AuthJWT = Depends(),
+):
     db_user = await get_user_or_404(email=user.email, db=db)
     if not verify_password(password=user.password, hashed_password=db_user.password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=messages.WRONG_PASSWORD)
@@ -87,34 +102,52 @@ async def forgot_password(data: Email, db: AsyncSession = Depends(get_session)):
     return {"detail": messages.RESET_PASSWORD_MAIL_SENT}
 
 
-@router.post("/reset-password/{token}", status_code=status.HTTP_202_ACCEPTED, summary="Сброс пароля")
+@router.post(
+    "/reset-password/{token}",
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="Сброс пароля",
+)
 async def reset_password(token: str, data: UpdatePassword, db: AsyncSession = Depends(get_session)):
     if not verify_token(token=token):
-        raise HTTPException(status_code=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION, detail=messages.INVALID_TOKEN)
+        raise HTTPException(
+            status_code=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION,
+            detail=messages.INVALID_TOKEN,
+        )
     email = get_email_from_token(token=token)
     user = await get_user_or_404(email=email, db=db)
     if data.password != data.confirm_password:
         raise HTTPException(
-            status_code=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION, detail=messages.PASSWORDS_NOT_MATCH
+            status_code=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION,
+            detail=messages.PASSWORDS_NOT_MATCH,
         )
     new_hashed_password = get_hashed_password(password=data.password)
     await crud_users.update_profile(db=db, user=user, updated_fields={"password": new_hashed_password})
     return {"detail": messages.PASSWORD_RESET}
 
 
-@router.post("/change-password/", status_code=status.HTTP_202_ACCEPTED, summary="Изменение пароля")
+@router.post(
+    "/change-password/",
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="Изменение пароля",
+)
 async def change_password(
-    data: UpdatePassword, db: AsyncSession = Depends(get_session), authorize: AuthJWT = Depends()
+    data: UpdatePassword,
+    db: AsyncSession = Depends(get_session),
+    authorize: AuthJWT = Depends(),
 ):
     authorize.jwt_required()
     if data.password != data.confirm_password:
         raise HTTPException(
-            status_code=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION, detail=messages.PASSWORDS_NOT_MATCH
+            status_code=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION,
+            detail=messages.PASSWORDS_NOT_MATCH,
         )
     email = authorize.get_jwt_subject()
     user = await get_user_or_404(email=email, db=db)
     if verify_password(password=data.password, hashed_password=user.password):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=messages.NEW_PASSWORD_SIMILAR_OLD)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=messages.NEW_PASSWORD_SIMILAR_OLD,
+        )
     new_hashed_password = get_hashed_password(password=data.password)
     await crud_users.update_profile(db=db, user=user, updated_fields={"password": new_hashed_password})
     return {"detail": messages.PASSWORD_UPDATED}

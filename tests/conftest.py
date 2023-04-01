@@ -1,19 +1,24 @@
 from collections.abc import AsyncGenerator
 
 import pytest_asyncio
+
+from app.database import Base, get_session
+from app.main import app as main_app
 from fastapi import FastAPI, status
 from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from app.database import Base, get_session
-from app.main import app as main_app
 from tests.settings import test_user, urls
 
 SQLALCHEMY_DATABASE_URL = "sqlite+aiosqlite://"
 
-engine = create_async_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}, poolclass=StaticPool)
+engine = create_async_engine(
+    SQLALCHEMY_DATABASE_URL,
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
+)
 
 Session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
@@ -50,13 +55,19 @@ async def client(app: FastAPI, db_session: Session) -> AsyncGenerator | TestClie
 
 @pytest_asyncio.fixture
 async def register_user(client: AsyncGenerator | TestClient) -> AsyncGenerator:
-    response = client.post(urls.register, json={"email": test_user.email, "password": test_user.password})
+    response = client.post(
+        urls.register, json={"email": test_user.email, "password": test_user.password}
+    )
     assert response.status_code == status.HTTP_201_CREATED
 
 
 @pytest_asyncio.fixture
-async def auth_client(register_user, client: AsyncGenerator | TestClient) -> AsyncGenerator | TestClient:
-    response = client.post(urls.login, json={"email": test_user.email, "password": test_user.password})
+async def auth_client(
+    register_user, client: AsyncGenerator | TestClient
+) -> AsyncGenerator | TestClient:
+    response = client.post(
+        urls.login, json={"email": test_user.email, "password": test_user.password}
+    )
     assert response.status_code == status.HTTP_200_OK
     access_token = response.json().get("access_token")
     client.headers.update({"Authorization": f"JWT {access_token}"})

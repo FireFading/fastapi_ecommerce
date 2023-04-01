@@ -5,8 +5,6 @@ from sqlalchemy_utils import UUIDType
 
 from app.database import Base
 
-# from app.validators import validate_name
-
 MAX_NAME_LEN = 100
 
 

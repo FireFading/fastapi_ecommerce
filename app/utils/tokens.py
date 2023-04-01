@@ -6,7 +6,7 @@ from app.settings import settings
 
 
 def create_token(email: str) -> str:
-    expires_in = (datetime.now() + timedelta(hours=settings.token_expire_hours)).timestamp()
+    expires_in = (datetime.now() + timedelta(hours=settings.token_expires_hours)).timestamp()
     payload = {"exp": expires_in, "email": email, "is_active": True}
     return jwt.encode(payload=payload, key=settings.secret_key, algorithm=settings.algorithm).decode("utf-8")
 

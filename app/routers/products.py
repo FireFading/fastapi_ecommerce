@@ -28,10 +28,17 @@ async def get_products(db: AsyncSession = Depends(get_session), authorize: AuthJ
 
 
 @router.post("/new", status_code=status.HTTP_201_CREATED, summary="Добавление нового продукта")
-async def create_product(product: Product, db: AsyncSession = Depends(get_session), authorize: AuthJWT = Depends()):
+async def create_product(
+    product: Product,
+    db: AsyncSession = Depends(get_session),
+    authorize: AuthJWT = Depends(),
+):
     authorize.jwt_required()
     if await crud_products.get_by_params(product=product, db=db):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=messages.PRODUCT_ALREADY_EXISTS)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=messages.PRODUCT_ALREADY_EXISTS,
+        )
     new_product = m_Product(
         product_id=uuid.uuid4(),
         name=product.name,
@@ -45,7 +52,9 @@ async def create_product(product: Product, db: AsyncSession = Depends(get_sessio
 
 @router.delete("/delete/{product_id}", status_code=status.HTTP_200_OK, summary="Удаление продукта")
 async def delete_product(
-    product_id: uuid.UUID, db: AsyncSession = Depends(get_session), authorize: AuthJWT = Depends()
+    product_id: uuid.UUID,
+    db: AsyncSession = Depends(get_session),
+    authorize: AuthJWT = Depends(),
 ):
     authorize.jwt_required()
     db_product = await crud_products.get_by_uuid(product_id=product_id, db=db)

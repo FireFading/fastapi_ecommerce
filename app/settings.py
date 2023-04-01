@@ -12,13 +12,13 @@ class JWTSettings(BaseSettings):
     refresh_token_expires: int = Field(env="REFRESH_TOKEN_EXPIRES")
 
     class Config:
-        env_file = "../.env"
+        env_file = "../.env.example"
 
 
 class Settings(BaseSettings):
-    domain_name: str = Field(env="DOMAIN_NAME")
+    domain_name: str = Field(env="DOMAIN_NAME", default="localhost")
 
-    token_expire_hours: int = Field(env="TOKEN_EXPIRES_HOURS")
+    token_expires_hours: int = Field(env="TOKEN_EXPIRES_HOURS")
     secret_key: str = Field(env="SECRET_KEY")
     algorithm: str = Field(env="ALGORITHM")
 
@@ -33,7 +33,7 @@ class Settings(BaseSettings):
     mail_validate_certs: bool = Field(env="MAIL_VALIDATE_CERT")
 
     class Config:
-        env_file = "../.env"
+        env_file = "../.env.example"
 
 
-settings = Settings()
+settings = Settings(_env_file="../.env.example")

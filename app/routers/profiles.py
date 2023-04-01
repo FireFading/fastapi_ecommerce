@@ -12,7 +12,11 @@ from app.utils.messages import messages
 crud_users = DBUsers()
 
 
-router = APIRouter(prefix="/accounts/profile", tags=["accounts"], responses={404: {"description": "Not found"}})
+router = APIRouter(
+    prefix="/accounts/profile",
+    tags=["accounts"],
+    responses={404: {"description": "Not found"}},
+)
 
 
 @AuthJWT.load_config
@@ -20,7 +24,12 @@ def get_jwt_settings():
     return JWTSettings()
 
 
-@router.get("/", response_model=User, status_code=status.HTTP_200_OK, summary="Получение информации о пользователе")
+@router.get(
+    "/",
+    response_model=User,
+    status_code=status.HTTP_200_OK,
+    summary="Получение информации о пользователе",
+)
 async def user_info(db: AsyncSession = Depends(get_session), authorize: AuthJWT = Depends()):
     authorize.jwt_required()
     email = authorize.get_jwt_subject()
@@ -28,7 +37,11 @@ async def user_info(db: AsyncSession = Depends(get_session), authorize: AuthJWT 
     return {"email": user.email, "phone": user.phone, "name": user.name}
 
 
-@router.post("/update/email/", status_code=status.HTTP_202_ACCEPTED, summary="Обновление Email в профиле")
+@router.post(
+    "/update/email/",
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="Обновление Email в профиле",
+)
 async def update_email(data: Email, db: AsyncSession = Depends(get_session), authorize: AuthJWT = Depends()):
     authorize.jwt_required()
     email = authorize.get_jwt_subject()
@@ -40,7 +53,11 @@ async def update_email(data: Email, db: AsyncSession = Depends(get_session), aut
     }
 
 
-@router.post("/update/phone/", status_code=status.HTTP_202_ACCEPTED, summary="Обновление телефона в профиле")
+@router.post(
+    "/update/phone/",
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="Обновление телефона в профиле",
+)
 async def update_phone(data: Phone, db: AsyncSession = Depends(get_session), authorize: AuthJWT = Depends()):
     authorize.jwt_required()
     email = authorize.get_jwt_subject()
@@ -49,7 +66,11 @@ async def update_phone(data: Phone, db: AsyncSession = Depends(get_session), aut
     return {"detail": messages.PHONE_UPDATED}
 
 
-@router.post("/update/name/", status_code=status.HTTP_202_ACCEPTED, summary="Обновление имени в профиле")
+@router.post(
+    "/update/name/",
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="Обновление имени в профиле",
+)
 async def update_name(data: Name, db: AsyncSession = Depends(get_session), authorize: AuthJWT = Depends()):
     authorize.jwt_required()
     email = authorize.get_jwt_subject()
