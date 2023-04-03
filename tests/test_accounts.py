@@ -10,7 +10,8 @@ from tests.settings import create_fake_token, test_user, urls
 
 class TestRegister:
     @pytest.mark.asyncio
-    async def test_register_user(self, client):
+    async def test_register_user(self, client, mocker: MockerFixture):
+        mocker.patch("app.routers.users.send_mail", return_value=True)
         response = client.post(
             urls.register,
             json={"email": test_user.email, "password": test_user.password},

@@ -18,7 +18,7 @@ crud_products = DBProducts()
 
 @AuthJWT.load_config
 def get_jwt_settings():
-    return JWTSettings()
+    return JWTSettings(_env_file=".env.example")
 
 
 @router.get("/get", status_code=status.HTTP_200_OK, summary="Получение всех доступных продуктов")

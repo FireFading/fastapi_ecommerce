@@ -1,6 +1,7 @@
 from collections.abc import AsyncGenerator
 
 import pytest_asyncio
+from pytest_mock import MockerFixture
 
 from app.database import Base, get_session
 from app.main import app as main_app
@@ -54,7 +55,8 @@ async def client(app: FastAPI, db_session: Session) -> AsyncGenerator | TestClie
 
 
 @pytest_asyncio.fixture
-async def register_user(client: AsyncGenerator | TestClient) -> AsyncGenerator:
+async def register_user(client: AsyncGenerator | TestClient, mocker: MockerFixture) -> AsyncGenerator:
+    mocker.patch("app.routers.users.send_mail", return_value=True)
     response = client.post(
         urls.register, json={"email": test_user.email, "password": test_user.password}
     )

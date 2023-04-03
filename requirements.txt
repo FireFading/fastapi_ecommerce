@@ -8,6 +8,8 @@ fastapi_mail
 httpx
 pyjwt
 pytest
+pytest_asyncio
 sqlalchemy
 sqlalchemy_utils
 uvicorn
+pytest_mock

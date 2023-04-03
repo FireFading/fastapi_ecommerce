@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 @nox.session
 def format(session: nox.Session) -> None:
     session.install("ufmt", "black", "ruff")
-    session.run("ufmt", "format", ".")
+    session.run("ufmt", "format", "app")
     session.run("black", "--config=configs/.black.toml", "app")
     session.run(
         "ruff",
@@ -29,6 +29,6 @@ def lint(session: nox.Session) -> None:
 
 @nox.session
 def run_tests(session: nox.Session) -> None:
-    load_dotenv(dotenv_path="./.env.example")
+    load_dotenv(dotenv_path="./.env")
     session.install("-r", "requirements.txt")
-    session.run("pytest", ".")
+    session.run("pytest", "./tests")

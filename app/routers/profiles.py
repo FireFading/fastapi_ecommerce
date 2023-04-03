@@ -21,7 +21,7 @@ router = APIRouter(
 
 @AuthJWT.load_config
 def get_jwt_settings():
-    return JWTSettings()
+    return JWTSettings(_env_file=".env.example")
 
 
 @router.get(

@@ -24,7 +24,7 @@ router = APIRouter(prefix="/accounts", tags=["accounts"], responses={404: {"desc
 
 @AuthJWT.load_config
 def get_jwt_settings():
-    return JWTSettings()
+    return JWTSettings(_env_file=".env.example")
 
 
 @router.post(
