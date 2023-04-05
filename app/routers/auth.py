@@ -1,10 +1,9 @@
+from app.database import Base, engine
 from fastapi import Depends, FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import AuthJWTException
 from starlette.middleware.cors import CORSMiddleware
-
-from app.database import Base, engine
 
 app = FastAPI()
 

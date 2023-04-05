@@ -1,16 +1,14 @@
 from collections.abc import AsyncGenerator
 
 import pytest_asyncio
-from pytest_mock import MockerFixture
-
 from app.database import Base, get_session
 from app.main import app as main_app
 from fastapi import FastAPI, status
 from fastapi.testclient import TestClient
+from pytest_mock import MockerFixture
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-
 from tests.settings import test_user, urls
 
 SQLALCHEMY_DATABASE_URL = "sqlite+aiosqlite://"
@@ -57,19 +55,13 @@ async def client(app: FastAPI, db_session: Session) -> AsyncGenerator | TestClie
 @pytest_asyncio.fixture
 async def register_user(client: AsyncGenerator | TestClient, mocker: MockerFixture) -> AsyncGenerator:
     mocker.patch("app.routers.users.send_mail", return_value=True)
-    response = client.post(
-        urls.register, json={"email": test_user.email, "password": test_user.password}
-    )
+    response = client.post(urls.register, json={"email": test_user.email, "password": test_user.password})
     assert response.status_code == status.HTTP_201_CREATED
 
 
 @pytest_asyncio.fixture
-async def auth_client(
-    register_user, client: AsyncGenerator | TestClient
-) -> AsyncGenerator | TestClient:
-    response = client.post(
-        urls.login, json={"email": test_user.email, "password": test_user.password}
-    )
+async def auth_client(register_user, client: AsyncGenerator | TestClient) -> AsyncGenerator | TestClient:
+    response = client.post(urls.login, json={"email": test_user.email, "password": test_user.password})
     assert response.status_code == status.HTTP_200_OK
     access_token = response.json().get("access_token")
     client.headers.update({"Authorization": f"JWT {access_token}"})

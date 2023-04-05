@@ -1,10 +1,8 @@
 import pytest
-
 from app.utils.messages import messages
 from app.utils.tokens import create_token
 from fastapi import status
 from pytest_mock import MockerFixture
-
 from tests.settings import create_fake_token, test_user, urls
 
 
@@ -31,9 +29,7 @@ class TestRegister:
 
     @pytest.mark.asyncio
     async def test_login_unregistered_user(self, client):
-        response = client.post(
-            urls.login, json={"email": test_user.email, "password": test_user.password}
-        )
+        response = client.post(urls.login, json={"email": test_user.email, "password": test_user.password})
         assert response.status_code == status.HTTP_404_NOT_FOUND
         assert response.json().get("detail") == messages.USER_NOT_FOUND
 
@@ -41,9 +37,7 @@ class TestRegister:
 class TestLogin:
     @pytest.mark.asyncio
     async def test_login_user(self, register_user, client):
-        response = client.post(
-            urls.login, json={"email": test_user.email, "password": test_user.password}
-        )
+        response = client.post(urls.login, json={"email": test_user.email, "password": test_user.password})
         assert response.status_code == status.HTTP_200_OK
         assert "access_token" in response.json()
         assert "refresh_token" in response.json()
@@ -68,18 +62,14 @@ class TestLogout:
 
 class TestForgotPassword:
     @pytest.mark.asyncio
-    async def test_user_forgot_password(
-        self, register_user, client, mocker: MockerFixture
-    ):
+    async def test_user_forgot_password(self, register_user, client, mocker: MockerFixture):
         mocker.patch("app.routers.users.send_mail", return_value=True)
         response = client.post(urls.forgot_password, json={"email": test_user.email})
         assert response.status_code == status.HTTP_202_ACCEPTED
         assert response.json().get("detail") == messages.RESET_PASSWORD_MAIL_SENT
 
     @pytest.mark.asyncio
-    async def test_unregistered_user_forgot_password(
-        self, client, mocker: MockerFixture
-    ):
+    async def test_unregistered_user_forgot_password(self, client, mocker: MockerFixture):
         mocker.patch("app.routers.users.send_mail", return_value=True)
         response = client.post(urls.forgot_password, json={"email": test_user.email})
         assert response.status_code == status.HTTP_404_NOT_FOUND

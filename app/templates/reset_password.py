@@ -1,4 +1,4 @@
-from app.settings import settings
+from app.config import settings
 
 
 def html_reset_password_mail(reset_password_token: str):

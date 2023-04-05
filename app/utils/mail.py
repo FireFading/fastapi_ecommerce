@@ -1,6 +1,5 @@
+from app.config import settings
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema
-
-from app.settings import settings
 
 
 async def send_mail(subject: str, recipients: list, body: str):

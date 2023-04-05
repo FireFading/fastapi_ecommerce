@@ -1,18 +1,16 @@
-from fastapi import HTTPException, status
+import bcrypt
+from app.crud import CRUD
+from app.database import Base
 from sqlalchemy import Boolean, Column, String
-from sqlalchemy.orm import validates
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy_utils import UUIDType
 
-from app.database import Base
 
-MAX_NAME_LEN = 100
-
-
-class User(Base):
+class User(Base, CRUD):
     __tablename__ = "users"
 
     user_id = Column(UUIDType(binary=False), primary_key=True, index=True)
-    is_active = Column(Boolean)
+    is_active = Column(Boolean, default=False)
     email = Column(String, unique=True)
     phone = Column(String, unique=True, nullable=True)
     password = Column(String)
@@ -21,10 +19,16 @@ class User(Base):
     def __repr__(self):
         return f"Пользователь {self.email}"
 
-    @validates("name")
-    def validate_name(self, key, name) -> str:
-        if not name:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"{key} field is empty")
-        if len(name) > MAX_NAME_LEN:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"{key} max symbol's")
-        return name
+    def get_hashed_password(self) -> str:
+        return bcrypt.hashpw(self.password.encode(), bcrypt.gensalt())
+
+    def verify_password(self, password: str) -> bool:
+        return bcrypt.checkpw(self.password.encode(), password)
+
+    async def create(self, session: AsyncSession):
+        self.password = self.get_hashed_password()
+        return await super().create(session=session)
+
+    async def update(self, session: AsyncSession):
+        self.password = self.get_hashed_password()
+        return await super().update(session=session)

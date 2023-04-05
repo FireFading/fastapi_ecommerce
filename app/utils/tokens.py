@@ -1,8 +1,7 @@
 from datetime import datetime, timedelta
 
 import jwt
-
-from app.settings import settings
+from app.config import settings
 
 
 def create_token(email: str) -> str:

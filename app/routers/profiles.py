@@ -1,13 +1,12 @@
-from fastapi import APIRouter, Depends, status
-from fastapi_jwt_auth import AuthJWT
-from sqlalchemy.ext.asyncio import AsyncSession
-
+from app.config import jwt_settings
 from app.crud.users import DBUsers
 from app.database import get_session
 from app.schemas.users import Email, Name, Phone, User
-from app.settings import JWTSettings
 from app.utils.exceptions import get_user_or_404
 from app.utils.messages import messages
+from fastapi import APIRouter, Depends, status
+from fastapi_jwt_auth import AuthJWT
+from sqlalchemy.ext.asyncio import AsyncSession
 
 crud_users = DBUsers()
 
@@ -21,7 +20,7 @@ router = APIRouter(
 
 @AuthJWT.load_config
 def get_jwt_settings():
-    return JWTSettings(_env_file=".env.example")
+    return jwt_settings
 
 
 @router.get(
@@ -30,10 +29,10 @@ def get_jwt_settings():
     status_code=status.HTTP_200_OK,
     summary="Получение информации о пользователе",
 )
-async def user_info(db: AsyncSession = Depends(get_session), authorize: AuthJWT = Depends()):
+async def user_info(session: AsyncSession = Depends(get_session), authorize: AuthJWT = Depends()):
     authorize.jwt_required()
     email = authorize.get_jwt_subject()
-    user = await crud_users.get_user_by_email(db=db, email=email)
+    user = await crud_users.get_user_by_email(session=session, email=email)
     return {"email": user.email, "phone": user.phone, "name": user.name}
 
 
@@ -42,11 +41,15 @@ async def user_info(db: AsyncSession = Depends(get_session), authorize: AuthJWT 
     status_code=status.HTTP_202_ACCEPTED,
     summary="Обновление Email в профиле",
 )
-async def update_email(data: Email, db: AsyncSession = Depends(get_session), authorize: AuthJWT = Depends()):
+async def update_email(
+    data: Email,
+    session: AsyncSession = Depends(get_session),
+    authorize: AuthJWT = Depends(),
+):
     authorize.jwt_required()
     email = authorize.get_jwt_subject()
-    user = await get_user_or_404(email=email, db=db)
-    await crud_users.update_profile(db=db, user=user, updated_fields={"email": data.email})
+    user = await get_user_or_404(email=email, session=session)
+    await crud_users.update_profile(session=session, user=user, updated_fields={"email": data.email})
     return {
         "access_token": authorize.create_access_token(subject=data.email),
         "refresh_token": authorize.create_access_token(subject=data.email),
@@ -58,11 +61,15 @@ async def update_email(data: Email, db: AsyncSession = Depends(get_session), aut
     status_code=status.HTTP_202_ACCEPTED,
     summary="Обновление телефона в профиле",
 )
-async def update_phone(data: Phone, db: AsyncSession = Depends(get_session), authorize: AuthJWT = Depends()):
+async def update_phone(
+    data: Phone,
+    session: AsyncSession = Depends(get_session),
+    authorize: AuthJWT = Depends(),
+):
     authorize.jwt_required()
     email = authorize.get_jwt_subject()
-    user = await get_user_or_404(email=email, db=db)
-    await crud_users.update_profile(db=db, user=user, updated_fields={"phone": data.phone})
+    user = await get_user_or_404(email=email, session=session)
+    await crud_users.update_profile(session=session, user=user, updated_fields={"phone": data.phone})
     return {"detail": messages.PHONE_UPDATED}
 
 
@@ -71,18 +78,22 @@ async def update_phone(data: Phone, db: AsyncSession = Depends(get_session), aut
     status_code=status.HTTP_202_ACCEPTED,
     summary="Обновление имени в профиле",
 )
-async def update_name(data: Name, db: AsyncSession = Depends(get_session), authorize: AuthJWT = Depends()):
+async def update_name(
+    data: Name,
+    session: AsyncSession = Depends(get_session),
+    authorize: AuthJWT = Depends(),
+):
     authorize.jwt_required()
     email = authorize.get_jwt_subject()
-    user = await get_user_or_404(email=email, db=db)
-    await crud_users.update_profile(db=db, user=user, updated_fields={"name": data.name})
+    user = await get_user_or_404(email=email, session=session)
+    await crud_users.update_profile(session=session, user=user, updated_fields={"name": data.name})
     return {"detail": messages.NAME_UPDATED}
 
 
 @router.delete("/delete/", status_code=status.HTTP_200_OK, summary="Удаление профиля")
-async def delete_profile(db: AsyncSession = Depends(get_session), authorize: AuthJWT = Depends()):
+async def delete_profile(session: AsyncSession = Depends(get_session), authorize: AuthJWT = Depends()):
     authorize.jwt_required()
     email = authorize.get_jwt_subject()
-    user = await get_user_or_404(email=email, db=db)
-    await crud_users.delete(db=db, user=user)
+    user = await get_user_or_404(email=email, session=session)
+    await crud_users.delete(session=session, user=user)
     return {"detail": messages.PROFILE_DELETED}

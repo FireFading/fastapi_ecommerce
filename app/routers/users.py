@@ -1,10 +1,3 @@
-import uuid
-
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi_jwt_auth import AuthJWT
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.crud.users import DBUsers
 from app.database import get_session
 from app.models.users import User as m_User
 from app.schemas.users import Email, LoginCredentials, UpdatePassword
@@ -14,10 +7,10 @@ from app.templates.reset_password import html_reset_password_mail
 from app.utils.exceptions import get_user_or_404
 from app.utils.mail import send_mail
 from app.utils.messages import messages
-from app.utils.password import get_hashed_password, verify_password
 from app.utils.tokens import create_token, get_email_from_token, verify_token
-
-crud_users = DBUsers()
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi_jwt_auth import AuthJWT
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(prefix="/accounts", tags=["accounts"], responses={404: {"description": "Not found"}})
 
@@ -32,15 +25,11 @@ def get_jwt_settings():
     status_code=status.HTTP_201_CREATED,
     summary="Регистрация пользователя",
 )
-async def register(user: LoginCredentials, db: AsyncSession = Depends(get_session)):
+async def register(user: LoginCredentials, session: AsyncSession = Depends(get_session)):
     email = user.email
-    db_user = await crud_users.get_user_by_email(db=db, email=email)
-    if db_user:
+    if await m_User.get(session=session, email=email):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=messages.USER_ALREADY_EXISTS)
-    user_id = uuid.uuid4()
-    hashed_password = get_hashed_password(password=user.password)
-    create_user = m_User(email=email, password=hashed_password, user_id=user_id, is_active=False)
-    await crud_users.create(db=db, user=create_user)
+    await m_User(**user).create(session=session)
     subject = "Завершение регистрации"
     token = create_token(email=email)
     body = html_activate_account_mail(token=token)
@@ -53,26 +42,27 @@ async def register(user: LoginCredentials, db: AsyncSession = Depends(get_sessio
     status_code=status.HTTP_202_ACCEPTED,
     summary="Активация аккаунта",
 )
-async def activate_account(token: str, db: AsyncSession = Depends(get_session)):
+async def activate_account(token: str, session: AsyncSession = Depends(get_session)):
     if not verify_token(token=token):
         raise HTTPException(
             status_code=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION,
             detail=messages.INVALID_TOKEN,
         )
     email = get_email_from_token(token=token)
-    user = await get_user_or_404(email=email, db=db)
-    await crud_users.activate_account(db=db, user=user)
+    user = await get_user_or_404(email=email, session=session)
+    user.is_active = True
+    await user.update(session=session)
     return {"detail": messages.PROFILE_ACTIVATED}
 
 
 @router.post("/login/", status_code=status.HTTP_200_OK, summary="Авторизация, получение токенов")
 async def login(
     user: LoginCredentials,
-    db: AsyncSession = Depends(get_session),
+    session: AsyncSession = Depends(get_session),
     authorize: AuthJWT = Depends(),
 ):
-    db_user = await get_user_or_404(email=user.email, db=db)
-    if not verify_password(password=user.password, hashed_password=db_user.password):
+    db_user = await get_user_or_404(email=user.email, session=session)
+    if not db_user.verify_password(password=user.password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=messages.WRONG_PASSWORD)
     return {
         "access_token": authorize.create_access_token(subject=user.email),
@@ -91,8 +81,8 @@ async def logout(authorize: AuthJWT = Depends()):
     status_code=status.HTTP_202_ACCEPTED,
     summary="Запрос на получение письма с токеном для сброса пароля",
 )
-async def forgot_password(data: Email, db: AsyncSession = Depends(get_session)):
-    user = await get_user_or_404(email=data.email, db=db)
+async def forgot_password(data: Email, session: AsyncSession = Depends(get_session)):
+    user = await get_user_or_404(email=data.email, session=session)
     reset_password_token = create_token(email=user.email)
 
     subject = "Reset password"
@@ -107,21 +97,20 @@ async def forgot_password(data: Email, db: AsyncSession = Depends(get_session)):
     status_code=status.HTTP_202_ACCEPTED,
     summary="Сброс пароля",
 )
-async def reset_password(token: str, data: UpdatePassword, db: AsyncSession = Depends(get_session)):
+async def reset_password(token: str, data: UpdatePassword, session: AsyncSession = Depends(get_session)):
     if not verify_token(token=token):
         raise HTTPException(
             status_code=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION,
             detail=messages.INVALID_TOKEN,
         )
     email = get_email_from_token(token=token)
-    user = await get_user_or_404(email=email, db=db)
+    user = await get_user_or_404(email=email, session=session)
     if data.password != data.confirm_password:
         raise HTTPException(
             status_code=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION,
             detail=messages.PASSWORDS_NOT_MATCH,
         )
-    new_hashed_password = get_hashed_password(password=data.password)
-    await crud_users.update_profile(db=db, user=user, updated_fields={"password": new_hashed_password})
+    await user.update(session=session)
     return {"detail": messages.PASSWORD_RESET}
 
 
@@ -132,7 +121,7 @@ async def reset_password(token: str, data: UpdatePassword, db: AsyncSession = De
 )
 async def change_password(
     data: UpdatePassword,
-    db: AsyncSession = Depends(get_session),
+    session: AsyncSession = Depends(get_session),
     authorize: AuthJWT = Depends(),
 ):
     authorize.jwt_required()
@@ -142,12 +131,11 @@ async def change_password(
             detail=messages.PASSWORDS_NOT_MATCH,
         )
     email = authorize.get_jwt_subject()
-    user = await get_user_or_404(email=email, db=db)
-    if verify_password(password=data.password, hashed_password=user.password):
+    user = await get_user_or_404(email=email, session=session)
+    if user.verify_password(password=data.password):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=messages.NEW_PASSWORD_SIMILAR_OLD,
         )
-    new_hashed_password = get_hashed_password(password=data.password)
-    await crud_users.update_profile(db=db, user=user, updated_fields={"password": new_hashed_password})
+    await user.update(session=session)
     return {"detail": messages.PASSWORD_UPDATED}

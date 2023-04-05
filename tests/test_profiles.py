@@ -1,8 +1,6 @@
 import pytest
-
 from app.utils.messages import messages
 from fastapi import status
-
 from tests.settings import test_user, urls
 
 
@@ -36,26 +34,20 @@ class TestProfileEndpoints:
 
     @pytest.mark.asyncio
     async def test_user_update_email(self, auth_client):
-        response = auth_client.post(
-            urls.update_email, json={"email": test_user.new_email}
-        )
+        response = auth_client.post(urls.update_email, json={"email": test_user.new_email})
         assert response.status_code == status.HTTP_202_ACCEPTED
         assert "access_token" in response.json()
         assert "refresh_token" in response.json()
 
     @pytest.mark.asyncio
     async def test_user_update_phone(self, auth_client):
-        response = auth_client.post(
-            urls.update_phone, json={"phone": test_user.new_phone}
-        )
+        response = auth_client.post(urls.update_phone, json={"phone": test_user.new_phone})
         assert response.status_code == status.HTTP_202_ACCEPTED
         assert response.json().get("detail") == messages.PHONE_UPDATED
 
     @pytest.mark.asyncio
     async def test_user_update_name(self, auth_client):
-        response = auth_client.post(
-            urls.update_name, json={"name": test_user.new_phone}
-        )
+        response = auth_client.post(urls.update_name, json={"name": test_user.new_phone})
         assert response.status_code == status.HTTP_202_ACCEPTED
         assert response.json().get("detail") == messages.NAME_UPDATED
 

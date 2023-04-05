@@ -1,4 +1,4 @@
-from app.settings import settings
+from app.config import settings
 
 
 def html_activate_account_mail(token: str):

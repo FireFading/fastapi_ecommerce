@@ -6,6 +6,7 @@ fastapi-jwt-auth
 fastapi_pagination
 fastapi_mail
 httpx
+pydantic[email]
 pyjwt
 pytest
 pytest_asyncio

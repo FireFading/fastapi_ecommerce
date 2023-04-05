@@ -16,6 +16,13 @@ class JWTSettings(BaseSettings):
 
 
 class Settings(BaseSettings):
+    database_url: str = Field(env="DATABASE_URL")
+
+    postgres_db: str = Field(env="POSTGRES_DB")
+    postgres_host: str = Field(env="POSTGRES_HOST")
+    postgres_user: str = Field(env="POSTGRES_USER")
+    postgres_password: str = Field(env="POSTGRES_PASSWORD")
+
     domain_name: str = Field(env="DOMAIN_NAME", default="localhost")
 
     token_expires_hours: int = Field(env="TOKEN_EXPIRES_HOURS")
@@ -34,6 +41,3 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = "../.env.example"
-
-
-settings = Settings(_env_file=".env.example")

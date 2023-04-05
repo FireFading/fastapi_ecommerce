@@ -1,8 +1,6 @@
 import pytest
-
 from app.utils.messages import messages
 from fastapi import status
-
 from tests.settings import test_product, urls
 
 

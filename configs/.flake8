@@ -2,39 +2,6 @@
 count = true
 max-line-length = 120
 max-complexity = 30
-max-cognitive-complexity = 55
-max-expression-complexity = 7
-exclude = .git
-        __pycache__
-        .idea
-        migrations
-        nox.py
-
-
-# F are errors reported by pyflakes, a tool which parses source files and finds invalid Python code
-# W and E are warnings and errors reported by pycodestyle, which checks your Python code against some of the style conventions in PEP 8
-# C are violations reported by mccabe, which checks the code complexity of your Python package against a configured limit
-# N are warnings about naming
-# B are warnings and errors reported by bugbear plugin, which helps to find various bugs and design problems in programs
-# A are checks for python builtins being used as variables or parameters
-# D200 One-line docstring should fit on one line with quotes
-# D201 No blank lines allowed before function docstring
-# D202 No blank lines allowed after function docstring
-# D209 Multi-line docstring closing quotes should be on a separate line
-# D210 No whitespaces allowed surrounding docstring text
-select = F, W, E, C, N, B, A, S, T, H, JS, CCR, SIM, PEA, NU, D200, D201, D202, D209, D210
-
-# keep W503 ignored because in the battle W503 vs W504 the winner is W504
-# B011 - about assert False in tests
-# SIM102 Use a single if-statement instead of nested if-statements - not so pretty
-# SIM106 - Handle error-cases first https://github.com/MartinThoma/flake8-simplify/issues/14
-# SIM111 Use 'return all(not el.keys() != first_keys for el in recs)' - not so pretty
-# SIM118 Use 'None in promotions' instead of 'None in promotions.keys()' - not so pretty
-# I are warnings about import
-# JS101 Multi-line container not broken after opening character
-# JS102 Multi-line container does not close on same column as opening
-# C408 Unnecessary dict call - rewrite as a literal.
-# T002: add author into TODO
-# T003: add link on issue into TODO
-# E203: https://black.readthedocs.io/en/stable/guides/using_black_with_other_tools.html#id1
-ignore = W503, B011, SIM102, SIM106, SIM111, SIM118, I, JS101, JS102, C408, T002, T003, E203, A003, B008
+exclude = .git, __pycache__, .idea/
+select = F,W,E,C,N,B,A,S,T,H,JS,CCR,SIM,PEA,NU,D200,D201,D202,D209,D210
+ignore = W503,B011,SIM102,SIM106,SIM111,SIM118,I,JS101,JS102,C408,T002,T003,E203,E501
