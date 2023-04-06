@@ -1,6 +1,6 @@
 from app.database import get_session
 from app.models.users import User as m_User
-from app.schemas.users import Email, LoginCredentials, UpdatePassword
+from app.schemas.users import CreateUser, Email, LoginCredentials, UpdatePassword
 from app.settings import JWTSettings
 from app.templates.activate_account import html_activate_account_mail
 from app.templates.reset_password import html_reset_password_mail
@@ -27,15 +27,14 @@ def get_jwt_settings():
     status_code=status.HTTP_201_CREATED,
     summary="Регистрация пользователя",
 )
-async def register(user: LoginCredentials, session: AsyncSession = Depends(get_session)):
+async def register(user: CreateUser, session: AsyncSession = Depends(get_session)):
     email = user.email
     if await m_User.get(session=session, email=email):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=messages.USER_ALREADY_EXISTS)
     await m_User(**user.dict()).create(session=session)
-    subject = "Завершение регистрации"
     token = create_token(email=email)
-    body = html_activate_account_mail(token=token)
-    await send_mail(subject=subject, recipients=[email], body=body)
+    html_activate_account_mail(token=token)
+    # await send_mail(subject=subject, recipients=[email], body=body)
     return {"email": email, "detail": messages.CONFIRM_REGISTRATION_MAIL_SENT}
 
 

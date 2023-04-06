@@ -12,27 +12,29 @@ class CRUD:
         return self
 
     @classmethod
-    async def get_filters(cls, kwargs: dict):
+    async def get_filters(cls, kwargs: dict | None = None):
         filters = []
-        for field, value in kwargs.items():
-            try:
-                if field.endswith("__gt"):
-                    model_field = getattr(cls, field[:-4])
-                    filters.append(model_field > value)
-                elif field.endswith("__gte"):
-                    model_field = getattr(cls, field[:-5])
-                    filters.append(model_field >= value)
-                elif field.endswith("__lt"):
-                    model_field = getattr(cls, field[:-4])
-                    filters.append(model_field < value)
-                elif field.endswith("__lte"):
-                    model_field = getattr(cls, field[:-5])
-                    filters.append(model_field <= value)
-                else:
-                    model_field = getattr(cls, field)
-                    filters.append(model_field == value)
-            except AttributeError:
-                return None
+        if kwargs:
+            for field, value in kwargs.items():
+                if value:
+                    try:
+                        if field.endswith("__gt"):
+                            model_field = getattr(cls, field[:-4])
+                            filters.append(model_field > value)
+                        elif field.endswith("__gte"):
+                            model_field = getattr(cls, field[:-5])
+                            filters.append(model_field >= value)
+                        elif field.endswith("__lt"):
+                            model_field = getattr(cls, field[:-4])
+                            filters.append(model_field < value)
+                        elif field.endswith("__lte"):
+                            model_field = getattr(cls, field[:-5])
+                            filters.append(model_field <= value)
+                        else:
+                            model_field = getattr(cls, field)
+                            filters.append(model_field == value)
+                    except AttributeError:
+                        return None
         return filters
 
     @classmethod
@@ -45,11 +47,16 @@ class CRUD:
             return order_by_field
 
     @classmethod
-    async def search(cls, session: AsyncSession, kwargs: dict, order_by: str | None = None):
+    async def search(
+        cls,
+        session: AsyncSession,
+        kwargs: dict | None = None,
+        order_by: str | None = None,
+    ):
         query = select(cls)
         if filters := await cls.get_filters(kwargs=kwargs):
             query = query.filter(and_(*filters))
-        if order_by_field := await cls.get_order_by(order_by=order_by):
+        if (order_by_field := await cls.get_order_by(order_by=order_by)) is not None:
             query = query.order_by(order_by_field)
         return await session.execute(query)
 
@@ -66,8 +73,8 @@ class CRUD:
 
     @classmethod
     async def all(cls, session: AsyncSession):
-        result = await session.execute(select(cls))
-        return result.scalars().all()
+        if result := await cls.search(session=session):
+            return result.scalars().all()
 
     @classmethod
     async def filter(cls, session: AsyncSession, order_by: str | None = None, **kwargs):
@@ -77,6 +84,7 @@ class CRUD:
     async def update(self, session: AsyncSession):
         await session.merge(self)
         await session.commit()
+        return self
 
     @classmethod
     async def delete(cls, instances: list | object, session: AsyncSession):

@@ -17,3 +17,6 @@ class Product(Base, CRUD):
 
     def __repr__(self):
         return f"{self.name}"
+
+
+fields = [column.name for column in Product.__table__.columns]

@@ -3,8 +3,15 @@ from fastapi import HTTPException
 from pydantic import BaseModel, EmailStr, validator
 
 
-class LoginCredentials(BaseModel):
+class Email(BaseModel):
     email: EmailStr
+
+
+class LoginCredentials(Email, BaseModel):
+    password: str
+
+
+class CreateUser(Email, BaseModel):
     password: str
 
     @validator("password")
@@ -13,7 +20,7 @@ class LoginCredentials(BaseModel):
 
 
 class Name(BaseModel):
-    name: str | None
+    name: str
 
     @validator("name")
     def validate_name(cls, name: str | None = None) -> str | None | HTTPException:
@@ -22,10 +29,6 @@ class Name(BaseModel):
 
 class Phone(BaseModel):
     phone: str
-
-
-class Email(BaseModel):
-    email: EmailStr
 
 
 class User(BaseModel):
