@@ -1,8 +1,11 @@
 from app.models.products import fields
+import uuid
 from pydantic import BaseModel, validator
 
 
 class Product(BaseModel):
+    product_id: uuid.UUID | None = None
+    author_id: uuid.UUID | None = None
     name: str
     description: str
     producer: str

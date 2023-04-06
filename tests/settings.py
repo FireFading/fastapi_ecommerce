@@ -28,6 +28,7 @@ class Urls:
 
     create_product = "/products/new/"
     get_products = "/products/get/"
+    delete_product = "/products/delete/"
 
 
 class TestUser:

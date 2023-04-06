@@ -5,8 +5,9 @@ from app.database import get_session
 from app.models.products import Product as m_Product
 from app.schemas.products import Product, ProductParams
 from app.utils.messages import messages
-from fastapi import APIRouter, Depends, Security, status
+from fastapi import APIRouter, Depends, Security, status, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from app.utils.exceptions import get_user_or_404
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -47,6 +48,9 @@ async def create_product(
     credentials: HTTPAuthorizationCredentials = Security(security),
 ):
     authorize.jwt_required()
+    email = authorize.get_jwt_subject()
+    author = await get_user_or_404(email=email, session=session)
+    product.author_id = product.author_id or author.user_id
     await m_Product(**product.dict()).create(session=session)
     return {"detail": messages.PRODUCT_CREATED}
 
@@ -59,6 +63,10 @@ async def delete_product(
     credentials: HTTPAuthorizationCredentials = Security(security),
 ):
     authorize.jwt_required()
+    email = authorize.get_jwt_subject()
+    user = await get_user_or_404(email=email, session=session)
     db_product = await m_Product.get(product_id=product_id, session=session)
+    if user != db_product.author:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
     await m_Product.delete(session=session, instances=db_product)
     return {"detail": messages.PRODUCT_DELETED}
