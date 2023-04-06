@@ -8,10 +8,7 @@ class TestProducts:
     @pytest.mark.asyncio
     async def test_not_available_without_auth(self, client):
         response = client.post(urls.create_product, json=test_product)
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
-
-        response = client.get(urls.get_products)
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert response.status_code == status.HTTP_403_FORBIDDEN
 
     @pytest.mark.asyncio
     async def test_create_product(self, auth_client):

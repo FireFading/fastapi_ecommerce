@@ -39,9 +39,9 @@ class TestUser:
 
     new_name = "UserName"
 
-    password = "TestPassword"
-    new_password = "NewTestPassword"
-    wrong_password = "WrongTestPassword"
+    password = "Abc123!@#def456$%^"
+    new_password = "NewAbc123!@#def456$%^"
+    wrong_password = "WrongAbc123!@#def456$%^"
 
 
 class BaseTestSettings(Settings):

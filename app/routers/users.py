@@ -107,6 +107,7 @@ async def reset_password(token: str, data: UpdatePassword, session: AsyncSession
         )
     email = get_email_from_token(token=token)
     user = await get_user_or_404(email=email, session=session)
+    print(data)
     if data.password != data.confirm_password:
         raise HTTPException(
             status_code=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION,

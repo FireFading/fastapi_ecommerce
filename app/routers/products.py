@@ -21,7 +21,7 @@ def get_jwt_settings():
 
 @router.get("/get", status_code=status.HTTP_200_OK, summary="Получение всех доступных продуктов")
 async def get_products(session: AsyncSession = Depends(get_session)):
-    return await m_Product.get(session=session)
+    return await m_Product.all(session=session)
 
 
 @router.post("/new", status_code=status.HTTP_201_CREATED, summary="Добавление нового продукта")
@@ -50,5 +50,5 @@ async def delete_product(
 ):
     authorize.jwt_required()
     db_product = await m_Product.get(product_id=product_id, session=session)
-    await db_product.delete(session=session)
+    await m_Product.delete(session=session, instances=db_product)
     return {"detail": messages.PRODUCT_DELETED}

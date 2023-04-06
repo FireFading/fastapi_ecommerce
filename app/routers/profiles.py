@@ -36,6 +36,7 @@ async def user_info(
     authorize.jwt_required()
     email = authorize.get_jwt_subject()
     user = await m_User.get(session=session, email=email)
+    print(user)
     return {"email": user.email, "phone": user.phone, "name": user.name}
 
 
@@ -76,7 +77,7 @@ async def update_phone(
     email = authorize.get_jwt_subject()
     user = await get_user_or_404(email=email, session=session)
     user.phone = data.phone
-    await user.update_profile(session=session)
+    await user.update(session=session)
     return {"detail": messages.PHONE_UPDATED}
 
 
@@ -108,5 +109,5 @@ async def delete_profile(
     authorize.jwt_required()
     email = authorize.get_jwt_subject()
     user = await get_user_or_404(email=email, session=session)
-    await user.delete(session=session)
+    await m_User.delete(session=session, instances=user)
     return {"detail": messages.PROFILE_DELETED}

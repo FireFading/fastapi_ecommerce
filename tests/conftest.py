@@ -62,5 +62,5 @@ async def auth_client(register_user, client: AsyncGenerator | TestClient) -> Asy
     response = client.post(urls.login, json={"email": test_user.email, "password": test_user.password})
     assert response.status_code == status.HTTP_200_OK
     access_token = response.json().get("access_token")
-    client.headers.update({"Authorization": f"JWT {access_token}"})
+    client.headers.update({"Authorization": f"Bearer {access_token}"})
     yield client
