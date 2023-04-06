@@ -6,6 +6,8 @@ fastapi-jwt-auth
 fastapi_pagination
 fastapi_mail
 httpx
+alembic
+asyncpg
 pydantic[email]
 pyjwt
 pytest
@@ -13,4 +15,5 @@ pytest_asyncio
 sqlalchemy
 sqlalchemy_utils
 uvicorn
+stackprinter
 pytest_mock

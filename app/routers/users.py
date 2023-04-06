@@ -8,11 +8,13 @@ from app.utils.exceptions import get_user_or_404
 from app.utils.mail import send_mail
 from app.utils.messages import messages
 from app.utils.tokens import create_token, get_email_from_token, verify_token
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Security, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(prefix="/accounts", tags=["accounts"], responses={404: {"description": "Not found"}})
+security = HTTPBearer()
 
 
 @AuthJWT.load_config
@@ -29,7 +31,7 @@ async def register(user: LoginCredentials, session: AsyncSession = Depends(get_s
     email = user.email
     if await m_User.get(session=session, email=email):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=messages.USER_ALREADY_EXISTS)
-    await m_User(**user).create(session=session)
+    await m_User(**user.dict()).create(session=session)
     subject = "Завершение регистрации"
     token = create_token(email=email)
     body = html_activate_account_mail(token=token)
@@ -123,6 +125,7 @@ async def change_password(
     data: UpdatePassword,
     session: AsyncSession = Depends(get_session),
     authorize: AuthJWT = Depends(),
+    credentials: HTTPAuthorizationCredentials = Security(security),
 ):
     authorize.jwt_required()
     if data.password != data.confirm_password:

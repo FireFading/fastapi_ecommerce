@@ -13,7 +13,7 @@ from app.config import (
     PUNCTUATION,
 )
 from fastapi import HTTPException, status
-from pydantic import BaseModel, EmailStr, validates
+from pydantic import BaseModel, EmailStr, validator
 
 
 class LoginCredentials(BaseModel):
@@ -24,8 +24,8 @@ class LoginCredentials(BaseModel):
 class Name(BaseModel):
     name: str | None
 
-    @validates("name")
-    def validate_name(self, name: str) -> str:
+    @validator("name")
+    def validate_name(cls, name: str) -> str:
         if not name:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -60,8 +60,8 @@ class UpdatePassword(BaseModel):
     password: str
     confirm_password: str
 
-    @validates("confirm_password")
-    def validate_password(self, confirm_password: str) -> bool:
+    @validator("confirm_password")
+    def validate_password(cls, confirm_password: str) -> bool:
         if re.search(HASHED_PASSWORD_RE, confirm_password):
             return True
         password_chars = set(confirm_password)

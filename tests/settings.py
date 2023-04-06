@@ -1,7 +1,13 @@
 from datetime import datetime
 
 import jwt
-from app.settings import settings
+from app.settings import Settings
+from dotenv import load_dotenv
+from pydantic import Field
+
+load_dotenv(dotenv_path="../")
+
+SQLALCHEMY_DATABASE_URL = "sqlite+aiosqlite://"
 
 
 class Urls:
@@ -38,8 +44,13 @@ class TestUser:
     wrong_password = "WrongTestPassword"
 
 
+class BaseTestSettings(Settings):
+    database_url: str = Field(env="TEST_DATABASE_URL")
+
+
 urls = Urls()
 test_user = TestUser()
+settings = BaseTestSettings(_env_file=".env.example")
 
 
 test_product = {

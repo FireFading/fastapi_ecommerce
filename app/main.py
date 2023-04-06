@@ -1,7 +1,10 @@
+import stackprinter
 import uvicorn
 from app.routers import products, profiles, users
 from app.routers.auth import app
 from fastapi_pagination import add_pagination
+
+stackprinter.set_excepthook()
 
 app.include_router(users.router)
 app.include_router(profiles.router)

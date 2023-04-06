@@ -1,3 +1,5 @@
+import uuid
+
 import bcrypt
 from app.crud import CRUD
 from app.database import Base
@@ -9,7 +11,7 @@ from sqlalchemy_utils import UUIDType
 class User(Base, CRUD):
     __tablename__ = "users"
 
-    user_id = Column(UUIDType(binary=False), primary_key=True, index=True)
+    user_id = Column(UUIDType(binary=False), primary_key=True, index=True, default=uuid.uuid4)
     is_active = Column(Boolean, default=False)
     email = Column(String, unique=True)
     phone = Column(String, unique=True, nullable=True)
@@ -20,10 +22,11 @@ class User(Base, CRUD):
         return f"Пользователь {self.email}"
 
     def get_hashed_password(self) -> str:
-        return bcrypt.hashpw(self.password.encode(), bcrypt.gensalt())
+        hashed_password = bcrypt.hashpw(self.password.encode(), bcrypt.gensalt())
+        return hashed_password.decode()
 
     def verify_password(self, password: str) -> bool:
-        return bcrypt.checkpw(self.password.encode(), password)
+        return bcrypt.checkpw(password=password.encode(), hashed_password=self.password.encode())
 
     async def create(self, session: AsyncSession):
         self.password = self.get_hashed_password()

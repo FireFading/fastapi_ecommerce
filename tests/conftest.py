@@ -9,9 +9,7 @@ from pytest_mock import MockerFixture
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-from tests.settings import test_user, urls
-
-SQLALCHEMY_DATABASE_URL = "sqlite+aiosqlite://"
+from tests.settings import SQLALCHEMY_DATABASE_URL, test_user, urls
 
 engine = create_async_engine(
     SQLALCHEMY_DATABASE_URL,

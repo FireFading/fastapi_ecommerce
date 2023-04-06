@@ -1,24 +1,24 @@
-# Ignore Python bytecode files
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+*.nox
 
-# Ignore pytest cache
-.pytest_cache/
-
-# Ignore Visual Studio Code workspace settings
+# Local development files
+.env
+venv/
 .vscode/
-
-# Ignore macOS directory metadata
-.DS_Store
-
-# Ignore PyCharm IDE settings
 .idea/
 
-# Ignore test database
-tests/test.db
+# Dependency directories
+venv/
+venv*/
+*/venv/
+*/venv*/
 
-# Ignore Ruffus cache files
-.ruff_cache/
-
-# Ignore environment variables file
-.env
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+*.egg

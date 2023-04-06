@@ -1,6 +1,20 @@
 ## setup
 - in env.example all variables used in project, change it to .env, several variables that are common, already define as example, secret variables is empty
-add to .env:
+add to .env
+
+## run project
+- `docker compose up --build` OR `make up`
+
+## down docker
+- `docker compose down && docker network prune --force` OR `make down`
+
+## database
+- connect to postgres: `docker exec -it postgres psql -U postgres`
+
+## migrations
+- connect to docker container: `docker exec -it fastapi bash`
+- apply migrations: `alembic upgrade head` in fastapi container
+- create new migrations: `alembic revision --autogenerate -m "<migration name>"` in fastapi container
 
 ## formatting and linting
 - run ufmt: `ufmt format .`
