@@ -26,7 +26,10 @@ class Messages:
 
     PRODUCT_CREATED = "Товар успешно создан"
     PRODUCT_DELETED = "Продукт успешно удален"
+    PRODUCT_UPDATED = "Продукт успешно обновлен"
     PRODUCT_ALREADY_EXISTS = "Данный продукт уже существует"
+
+    ACCESS_DENIED = "Access denied"
 
 
 messages = Messages()

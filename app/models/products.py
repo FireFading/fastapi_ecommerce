@@ -2,7 +2,7 @@ import uuid
 
 from app.crud import CRUD
 from app.database import Base
-from sqlalchemy import Column, Float, String, ForeignKey
+from sqlalchemy import Column, Float, ForeignKey, String
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import UUIDType
 

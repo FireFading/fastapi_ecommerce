@@ -9,7 +9,7 @@ from pytest_mock import MockerFixture
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-from tests.settings import SQLALCHEMY_DATABASE_URL, test_user, urls, test_product
+from tests.settings import SQLALCHEMY_DATABASE_URL, test_product, test_user, urls
 
 engine = create_async_engine(
     SQLALCHEMY_DATABASE_URL,
@@ -67,7 +67,8 @@ async def auth_client(register_user, client: AsyncGenerator | TestClient) -> Asy
 
 
 @pytest_asyncio.fixture
-async def create_product(auth_client: AsyncGenerator | TestClient) -> AsyncGenerator | TestClient:
+async def create_product(
+    auth_client: AsyncGenerator | TestClient,
+) -> AsyncGenerator | TestClient:
     response = auth_client.post(urls.create_product, json=test_product)
     assert response.status_code == status.HTTP_201_CREATED
-    

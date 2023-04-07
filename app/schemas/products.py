@@ -1,5 +1,6 @@
-from app.models.products import fields
 import uuid
+
+from app.models.products import fields
 from pydantic import BaseModel, validator
 
 
