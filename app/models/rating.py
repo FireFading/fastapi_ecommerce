@@ -11,7 +11,7 @@ class Rating(Base, CRUD):
     __tablename__ = "ratings"
 
     rating_id = Column(UUIDType(binary=False), primary_key=True, index=True, default=uuid.uuid4)
-    starts = Column(Integer)
+    stars = Column(Integer)
 
     author_id = Column(UUIDType(binary=False), ForeignKey("users.user_id"))
     author = relationship("User", lazy="joined", backref="ratings")

@@ -30,6 +30,8 @@ class Urls:
     get_products = "/products/get/"
     delete_product = "/products/delete/"
 
+    create_rating = "/products/ratings/new/"
+
 
 class TestUser:
     email = "test@mail.ru"
@@ -62,6 +64,8 @@ test_product = {
     "producer": "test_producer",
     "price": 10000.0,
 }
+
+rating = {"stars": 2, "product_id": "00000000-0000-0000-0000-000000000000"}
 
 
 def create_fake_token(expires_in: datetime = datetime(1999, 1, 1), email: str = test_user.email) -> str:

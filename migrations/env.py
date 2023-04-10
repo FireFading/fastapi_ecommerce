@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 
 from app.models.products import *
 from app.models.users import *
+from app.models.rating import *
 from alembic import context
 from app.config import settings
 

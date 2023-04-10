@@ -13,7 +13,7 @@ from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(
-    prefix="/products/rating",
+    prefix="/products/ratings",
     tags=["ratings"],
     responses={404: {"description": "Not found"}},
 )
@@ -33,7 +33,7 @@ def get_jwt_settings():
 async def get_product_ratings(product_id: uuid.UUID, session: AsyncSession = Depends(get_session)):
     if not (product := await m_Product.get(product_id=product_id, session=session)):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=messages.PRODUCT_NOT_FOUND)
-    ratings = product.ratings
+    ratings = await m_Rating.filter(product_id=product.product_id, session=session)
     return [Rating.from_orm(rating).dict() for rating in ratings] if ratings else None
 
 
@@ -47,12 +47,12 @@ async def create_new_ratings(
     authorize.jwt_required()
     email = authorize.get_jwt_subject()
     user = await get_user_or_404(email=email, session=session)
-    if await m_Rating.get(session=session, author=user):
+    if await m_Rating.get(session=session, author_id=user.user_id):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=messages.RATING_ALREADY_EXISTS,
         )
     if not (product := await m_Product.get(product_id=create_rating.product_id, session=session)):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=messages.PRODUCT_NOT_FOUND)
-    await m_Rating(product=product, author=user, stars=create_rating.stars).create(session=session)
+    await m_Rating(product=product, author_id=user.user_id, stars=create_rating.stars).create(session=session)
     return {"detail": messages.RATING_CREATED}
