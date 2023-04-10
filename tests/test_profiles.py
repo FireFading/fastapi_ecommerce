@@ -1,4 +1,3 @@
-import pytest
 from app.utils.messages import messages
 from fastapi import status
 from tests.settings import test_user, urls
@@ -24,11 +23,11 @@ class TestProfileEndpoints:
     async def test_user_info(self, auth_client):
         response = auth_client.get(urls.user_info)
         assert response.status_code == status.HTTP_200_OK
-        assert response.json() == {
-            "email": test_user.email,
-            "phone": None,
-            "name": None,
-        }
+        result = response.json()
+        assert result.get("email") == test_user.email
+        assert result.get("phone") == test_user.phone
+        assert result.get("name") == test_user.name
+        assert result.get("user_id") is not None
 
     async def test_user_update_email(self, auth_client):
         response = auth_client.post(urls.update_email, json={"email": test_user.new_email})

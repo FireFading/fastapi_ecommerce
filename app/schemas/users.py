@@ -1,3 +1,5 @@
+import uuid
+
 from app.utils.validators import validate_name, validate_password
 from fastapi import HTTPException
 from pydantic import BaseModel, EmailStr, validator
@@ -32,9 +34,13 @@ class Phone(BaseModel):
 
 
 class User(BaseModel):
+    user_id: uuid.UUID
     email: EmailStr | None
     phone: str | None
     name: str | None
+
+    class Config:
+        orm_mode = True
 
 
 class UpdatePassword(BaseModel):

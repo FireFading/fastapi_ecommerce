@@ -36,8 +36,10 @@ class TestUser:
     new_email = "new_test@mail.ru"
     wrong_email = "wrong_test@mail.ru"
 
+    phone = None
     new_phone = "89101111111"
 
+    name = None
     new_name = "UserName"
 
     password = "Abc123!@#def456$%^"

@@ -10,7 +10,7 @@ from sqlalchemy_utils import UUIDType
 class Product(Base, CRUD):
     __tablename__ = "products"
 
-    product_id = Column(UUIDType(binary=False), primary_key=True, index=True, default=uuid.uuid4())
+    product_id = Column(UUIDType(binary=False), primary_key=True, index=True, default=uuid.uuid4)
     name = Column(String, nullable=False)
     description = Column(String, nullable=True)
     producer = Column(String, nullable=True)

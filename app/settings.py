@@ -10,6 +10,7 @@ class JWTSettings(BaseSettings):
     authjwt_header_name: str = Field(env="AUTHJWT_HEADER_NAME")
     access_token_expires: int = Field(env="ACCESS_TOKEN_EXPIRES")
     refresh_token_expires: int = Field(env="REFRESH_TOKEN_EXPIRES")
+    authjwt_algorithm: str = Field(env="ALGORITHM")
 
     class Config:
         env_file = "../.env.example"
@@ -27,6 +28,7 @@ class Settings(BaseSettings):
 
     token_expires_hours: int = Field(env="TOKEN_EXPIRES_HOURS")
     secret_key: str = Field(env="SECRET_KEY")
+    authjwt_secret_key: str = Field(env="AUTHJWT_SECRET_KEY")
     algorithm: str = Field(env="ALGORITHM")
 
     mail_username: str = Field(env="MAIL_USERNAME")

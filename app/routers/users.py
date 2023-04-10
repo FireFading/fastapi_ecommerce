@@ -1,7 +1,7 @@
+from app.config import jwt_settings
 from app.database import get_session
 from app.models.users import User as m_User
 from app.schemas.users import CreateUser, Email, LoginCredentials, UpdatePassword
-from app.settings import JWTSettings
 from app.templates.activate_account import html_activate_account_mail
 from app.templates.reset_password import html_reset_password_mail
 from app.utils.exceptions import get_user_or_404
@@ -19,7 +19,8 @@ security = HTTPBearer()
 
 @AuthJWT.load_config
 def get_jwt_settings():
-    return JWTSettings(_env_file=".env.example")
+    print(jwt_settings)
+    return jwt_settings
 
 
 @router.post(
@@ -63,6 +64,7 @@ async def login(
     authorize: AuthJWT = Depends(),
 ):
     db_user = await get_user_or_404(email=user.email, session=session)
+    print(db_user)
     if not db_user.verify_password(password=user.password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=messages.WRONG_PASSWORD)
     return {

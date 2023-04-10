@@ -28,8 +28,12 @@ class Messages:
     PRODUCT_DELETED = "Продукт успешно удален"
     PRODUCT_UPDATED = "Продукт успешно обновлен"
     PRODUCT_ALREADY_EXISTS = "Данный продукт уже существует"
+    PRODUCT_NOT_FOUND = "Продукт с таким id не существует"
 
-    ACCESS_DENIED = "Access denied"
+    RATING_ALREADY_EXISTS = "Продукт уже оценен данным пользователем"
+    RATING_CREATED = "Оценка продукта принята"
+
+    ACCESS_DENIED = "Доступ запрещен"
 
 
 messages = Messages()

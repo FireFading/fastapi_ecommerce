@@ -36,8 +36,7 @@ async def user_info(
     authorize.jwt_required()
     email = authorize.get_jwt_subject()
     user = await m_User.get(session=session, email=email)
-    print(user)
-    return {"email": user.email, "phone": user.phone, "name": user.name}
+    return User.from_orm(user).dict()
 
 
 @router.post(
