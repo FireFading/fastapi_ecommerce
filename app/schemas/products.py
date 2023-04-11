@@ -5,8 +5,8 @@ from pydantic import BaseModel, validator
 
 
 class Product(BaseModel):
-    product_id: uuid.UUID | None = None
-    author_id: uuid.UUID | None = None
+    guid: uuid.UUID | None = None
+    user_id: uuid.UUID | None = None
     name: str
     description: str
     producer: str

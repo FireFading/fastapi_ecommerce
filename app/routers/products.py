@@ -26,8 +26,8 @@ def get_jwt_settings():
     status_code=status.HTTP_200_OK,
     summary="Получение продукта по id",
 )
-async def get_product(product_id: str, session: AsyncSession = Depends(get_session)):
-    return await m_Product.get(session=session, product_id=product_id)
+async def get_product(product_id: uuid.UUID, session: AsyncSession = Depends(get_session)):
+    return await m_Product.get(session=session, guid=product_id)
 
 
 @router.get("/get", status_code=status.HTTP_200_OK, summary="Получение всех доступных продуктов")
@@ -50,8 +50,8 @@ async def create_product(
 ):
     authorize.jwt_required()
     email = authorize.get_jwt_subject()
-    author = await get_user_or_404(email=email, session=session)
-    product.author_id = product.author_id or author.user_id
+    user = await get_user_or_404(email=email, session=session)
+    product.user_id = product.user_id or user.guid
     await m_Product(**product.dict()).create(session=session)
     return {"detail": messages.PRODUCT_CREATED}
 
@@ -71,12 +71,12 @@ async def update_product(
     authorize.jwt_required()
     email = authorize.get_jwt_subject()
     user = await get_user_or_404(email=email, session=session)
-    db_product = await m_Product.get(product_id=product_id, session=session)
-    if user != db_product.author:
+    db_product = await m_Product.get(guid=product_id, session=session)
+    if user != db_product.user:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=messages.ACCESS_DENIED)
-    if not (new_author := await m_User.get(user_id=update_product.author_id, session=session)):
+    if not (new_author := await m_User.get(guid=update_product.user_id, session=session)):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=messages.USER_NOT_FOUND)
-    db_product.author = new_author
+    db_product.user = new_author
     db_product.price = update_product.price
     db_product.description = update_product.description
     db_product.producer = update_product.producer
@@ -94,8 +94,8 @@ async def delete_product(
     authorize.jwt_required()
     email = authorize.get_jwt_subject()
     user = await get_user_or_404(email=email, session=session)
-    db_product = await m_Product.get(product_id=product_id, session=session)
-    if user != db_product.author:
+    db_product = await m_Product.get(guid=product_id, session=session)
+    if user.guid != db_product.user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
     await m_Product.delete(session=session, instances=db_product)
     return {"detail": messages.PRODUCT_DELETED}

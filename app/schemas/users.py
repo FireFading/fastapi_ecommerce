@@ -34,7 +34,7 @@ class Phone(BaseModel):
 
 
 class User(BaseModel):
-    user_id: uuid.UUID
+    guid: uuid.UUID
     email: EmailStr | None
     phone: str | None
     name: str | None

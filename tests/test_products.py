@@ -24,7 +24,7 @@ class TestProducts:
     async def test_delete_product(self, create_product, auth_client):
         response = auth_client.get(urls.get_products)
         assert response.status_code == status.HTTP_200_OK
-        product_id = (response.json()[0]).get("product_id")
+        product_id = (response.json()[0]).get("guid")
         response = auth_client.delete(f"{urls.delete_product}{product_id}")
         assert response.status_code == status.HTTP_200_OK
         assert response.json().get("detail") == messages.PRODUCT_DELETED

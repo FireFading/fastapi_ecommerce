@@ -27,7 +27,7 @@ class TestProfileEndpoints:
         assert result.get("email") == test_user.email
         assert result.get("phone") == test_user.phone
         assert result.get("name") == test_user.name
-        assert result.get("user_id") is not None
+        assert result.get("guid") is not None
 
     async def test_user_update_email(self, auth_client):
         response = auth_client.post(urls.update_email, json={"email": test_user.new_email})

@@ -11,7 +11,7 @@ from sqlalchemy_utils import UUIDType
 class User(Base, CRUD):
     __tablename__ = "users"
 
-    user_id = Column(UUIDType(binary=False), primary_key=True, index=True, default=uuid.uuid4)
+    guid = Column(UUIDType(binary=False), primary_key=True, index=True, default=uuid.uuid4)
     is_active = Column(Boolean, default=False)
     email = Column(String, unique=True)
     phone = Column(String, unique=True, nullable=True)

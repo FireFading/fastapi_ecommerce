@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 class Rating(BaseModel):
     stars: int
-    author: User
+    user: User
     product: Product
 
     class Config:
