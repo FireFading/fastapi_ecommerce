@@ -1,3 +1,12 @@
+## features
+- JWT-authentication
+- update profile with phone or name/ new email/phone/name, in registration user has only email and password, then can extend profile
+- create product if user is authenticated
+- get products with or without filters and ordering
+- rate product with from 1 to 5 stars
+- get all ratings from users for product
+- all features tested with pytest
+
 ## setup
 - in env.example all variables used in project, change it to .env, several variables that are common, already define as example, secret variables is empty
 add to .env
