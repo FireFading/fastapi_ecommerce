@@ -14,10 +14,10 @@
 
 ## setup
 - in env.example all variables used in project, change it to .env, several variables that are common, already define as example, secret variables is empty
-add to .env
 
 ## run project
-- `docker compose up --build` OR `make up`
+- `docker compose up --build` OR `make build` - first time
+- `docker compose up` OR `make up` - run without building, also you can prove -d flag to run as daemon
 
 ## down docker
 - `docker compose down && docker network prune --force` OR `make down`
