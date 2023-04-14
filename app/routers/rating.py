@@ -36,7 +36,7 @@ async def get_product_ratings(product_id: uuid.UUID, session: AsyncSession = Dep
 
 
 @router.get(
-    "/get/avg/{product_id}/",
+    "/avg/{product_id}/",
     status_code=status.HTTP_200_OK,
     summary="Получение среднего рейтинга продукта по guid",
 )
@@ -65,3 +65,25 @@ async def create_new_ratings(
     product.upgrade_rating(rating=create_rating.stars)
     await product.update(session=session)
     return {"detail": messages.RATING_CREATED}
+
+
+@router.delete("/delete/{product_id}/", status_code=status.HTTP_200_OK, summary="Удаление оценки")
+async def delete_rating(
+    product_id: uuid.UUID,
+    session: AsyncSession = Depends(get_session),
+    authorize: AuthJWT = Depends(),
+    credentials: HTTPAuthorizationCredentials = Security(security),
+):
+    authorize.jwt_required()
+    email = authorize.get_jwt_subject()
+    user = await get_user_or_404(email=email, session=session)
+    if not (rating := await m_Rating.get(session=session, user_id=user.guid, product_id=product_id)):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=messages.RATING_NOT_FOUND,
+        )
+    product = await get_product_or_404(guid=product_id, session=session)
+    product.downgrade_rating(rating=rating.stars)
+    await product.update(session=session)
+    await m_Rating.delete(session=session, instances=rating)
+    return {"detail": messages.RATING_DELETED}

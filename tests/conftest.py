@@ -9,15 +9,15 @@ from pytest_mock import MockerFixture
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-from tests.settings import SQLALCHEMY_DATABASE_URL, Urls, User, test_product
+from tests.settings import Urls, create_product_schema, login_credentials_schema, rating, settings
 
 engine = create_async_engine(
-    SQLALCHEMY_DATABASE_URL,
+    settings.database_url,
     connect_args={"check_same_thread": False},
     poolclass=StaticPool,
 )
 
-Session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 
 @pytest_asyncio.fixture()
@@ -33,7 +33,7 @@ async def app() -> AsyncGenerator:
 async def db_session(app: FastAPI) -> AsyncGenerator:
     connection = await engine.connect()
     transaction = await connection.begin()
-    session = Session(bind=connection)
+    session = async_session(bind=connection)
     yield session
     await session.close()
     await transaction.rollback()
@@ -41,7 +41,7 @@ async def db_session(app: FastAPI) -> AsyncGenerator:
 
 
 @pytest_asyncio.fixture
-async def client(app: FastAPI, db_session: Session) -> AsyncGenerator | TestClient:
+async def client(app: FastAPI, db_session: async_session) -> AsyncGenerator | TestClient:
     async def _get_test_db():
         yield db_session
 
@@ -53,13 +53,13 @@ async def client(app: FastAPI, db_session: Session) -> AsyncGenerator | TestClie
 @pytest_asyncio.fixture
 async def register_user(client: AsyncGenerator | TestClient, mocker: MockerFixture) -> AsyncGenerator:
     mocker.patch("app.routers.users.send_mail", return_value=True)
-    response = client.post(Urls.REGISTER, json={"email": User.EMAIL, "password": User.PASSWORD})
+    response = client.post(Urls.REGISTER, json=login_credentials_schema)
     assert response.status_code == status.HTTP_201_CREATED
 
 
 @pytest_asyncio.fixture
 async def auth_client(register_user, client: AsyncGenerator | TestClient) -> AsyncGenerator | TestClient:
-    response = client.post(Urls.LOGIN, json={"email": User.EMAIL, "password": User.PASSWORD})
+    response = client.post(Urls.LOGIN, json=login_credentials_schema)
     assert response.status_code == status.HTTP_200_OK
     access_token = response.json().get("access_token")
     client.headers.update({"Authorization": f"Bearer {access_token}"})
@@ -70,5 +70,18 @@ async def auth_client(register_user, client: AsyncGenerator | TestClient) -> Asy
 async def create_product(
     auth_client: AsyncGenerator | TestClient,
 ) -> AsyncGenerator | TestClient:
-    response = auth_client.post(Urls.CREATE_PRODUCT, json=test_product)
+    response = auth_client.post(Urls.CREATE_PRODUCT, json=create_product_schema)
     assert response.status_code == status.HTTP_201_CREATED
+
+
+@pytest_asyncio.fixture
+async def create_rating(auth_client: AsyncGenerator | TestClient, create_product) -> AsyncGenerator | TestClient:
+    response = auth_client.post(Urls.CREATE_RATING, json=rating)
+    assert response.status_code == status.HTTP_201_CREATED
+
+
+# @pytest_asyncio.fixture
+# async def get_product(auth_client: AsyncGenerator | TestClient, create_product) -> AsyncGenerator | TestClient:
+#     response = auth_client.get(Urls.GET_PRODUCTS)
+#     assert response.status_code == status.HTTP_200_OK
+#     result = response.json()[0]

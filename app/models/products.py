@@ -28,6 +28,14 @@ class Product(Base, CRUD):
             self.avg_rating = rating
         else:
             self.avg_rating = (self.avg_rating * self.reviews_count + rating) / (self.reviews_count + 1)
+        self.reviews_count += 1
+
+    def downgrade_rating(self, rating: float):
+        if self.reviews_count > 1:
+            self.avg_rating = (self.avg_rating * self.reviews_count - rating) / (self.reviews_count - 1)
+        else:
+            self.avg_rating = 0
+        self.reviews_count -= 1
 
 
 fields = [column.name for column in Product.__table__.columns]

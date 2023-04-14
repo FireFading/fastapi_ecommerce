@@ -2,7 +2,14 @@ from app.utils.messages import messages
 from app.utils.tokens import create_token
 from fastapi import status
 from pytest_mock import MockerFixture
-from tests.settings import Urls, User, create_fake_token
+from tests.settings import (
+    Urls,
+    User,
+    change_password_schema,
+    create_fake_token,
+    login_credentials_schema,
+    wrong_change_password_schema,
+)
 
 
 class TestRegister:
@@ -10,7 +17,7 @@ class TestRegister:
         mocker.patch("app.routers.users.send_mail", return_value=True)
         response = client.post(
             Urls.REGISTER,
-            json={"email": User.EMAIL, "password": User.PASSWORD},
+            json=login_credentials_schema,
         )
         assert response.status_code == status.HTTP_201_CREATED
         assert response.json().get("email") == User.EMAIL
@@ -19,20 +26,20 @@ class TestRegister:
     async def test_failed_repeat_register_user(self, register_user, client):
         response = client.post(
             Urls.REGISTER,
-            json={"email": User.EMAIL, "password": User.PASSWORD},
+            json=login_credentials_schema,
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.json().get("detail") == messages.USER_ALREADY_EXISTS
 
     async def test_login_unregistered_user(self, client):
-        response = client.post(Urls.LOGIN, json={"email": User.EMAIL, "password": User.PASSWORD})
+        response = client.post(Urls.LOGIN, json=login_credentials_schema)
         assert response.status_code == status.HTTP_404_NOT_FOUND
         assert response.json().get("detail") == messages.USER_NOT_FOUND
 
 
 class TestLogin:
     async def test_login_user(self, register_user, client):
-        response = client.post(Urls.LOGIN, json={"email": User.EMAIL, "password": User.PASSWORD})
+        response = client.post(Urls.LOGIN, json=login_credentials_schema)
         assert response.status_code == status.HTTP_200_OK
         assert "access_token" in response.json()
         assert "refresh_token" in response.json()
@@ -72,10 +79,7 @@ class TestResetPassword:
         reset_password_token = create_token(email=User.EMAIL)
         response = client.post(
             f"{Urls.RESET_PASSWORD}{reset_password_token}",
-            json={
-                "password": User.NEW_PASSWORD,
-                "confirm_password": User.NEW_PASSWORD,
-            },
+            json=change_password_schema,
         )
         assert response.status_code == status.HTTP_202_ACCEPTED
         assert response.json().get("detail") == messages.PASSWORD_RESET
@@ -84,10 +88,7 @@ class TestResetPassword:
         reset_password_token = create_fake_token()
         response = client.post(
             f"{Urls.RESET_PASSWORD}{reset_password_token}",
-            json={
-                "password": User.NEW_PASSWORD,
-                "confirm_password": User.NEW_PASSWORD,
-            },
+            json=change_password_schema,
         )
         assert response.status_code == status.HTTP_203_NON_AUTHORITATIVE_INFORMATION
         assert response.json().get("detail") == messages.INVALID_TOKEN
@@ -96,10 +97,7 @@ class TestResetPassword:
         reset_password_token = create_token(email=User.EMAIL)
         response = client.post(
             f"{Urls.RESET_PASSWORD}{reset_password_token}",
-            json={
-                "password": User.NEW_PASSWORD,
-                "confirm_password": User.NEW_PASSWORD,
-            },
+            json=change_password_schema,
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND
         assert response.json().get("detail") == messages.USER_NOT_FOUND
@@ -108,10 +106,7 @@ class TestResetPassword:
         reset_password_token = create_token(email=User.EMAIL)
         response = client.post(
             f"{Urls.RESET_PASSWORD}{reset_password_token}",
-            json={
-                "password": User.NEW_PASSWORD,
-                "confirm_password": User.WRONG_PASSWORD,
-            },
+            json=wrong_change_password_schema,
         )
         assert response.status_code == status.HTTP_203_NON_AUTHORITATIVE_INFORMATION
         assert response.json().get("detail") == messages.PASSWORDS_NOT_MATCH
@@ -121,10 +116,7 @@ class TestChangePassword:
     async def test_user_change_password(self, auth_client):
         response = auth_client.post(
             Urls.CHANGE_PASSWORD,
-            json={
-                "password": User.NEW_PASSWORD,
-                "confirm_password": User.NEW_PASSWORD,
-            },
+            json=change_password_schema,
         )
         assert response.status_code == status.HTTP_202_ACCEPTED
         assert response.json().get("detail") == messages.PASSWORD_UPDATED
@@ -132,10 +124,7 @@ class TestChangePassword:
     async def test_user_change_password_not_match(self, auth_client):
         response = auth_client.post(
             Urls.CHANGE_PASSWORD,
-            json={
-                "password": User.NEW_PASSWORD,
-                "confirm_password": User.WRONG_PASSWORD,
-            },
+            json=wrong_change_password_schema,
         )
         assert response.status_code == status.HTTP_203_NON_AUTHORITATIVE_INFORMATION
         assert response.json().get("detail") == messages.PASSWORDS_NOT_MATCH

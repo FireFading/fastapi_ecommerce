@@ -1,25 +1,25 @@
 from app.utils.messages import messages
 from fastapi import status
-from tests.settings import Urls, test_product
+from tests.settings import Product, Urls, create_product_schema
 
 
 class TestProducts:
     async def test_not_available_without_auth(self, client):
-        response = client.post(Urls.CREATE_PRODUCT, json=test_product)
+        response = client.post(Urls.CREATE_PRODUCT, json=create_product_schema)
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     async def test_create_product(self, auth_client):
-        response = auth_client.post(Urls.CREATE_PRODUCT, json=test_product)
+        response = auth_client.post(Urls.CREATE_PRODUCT, json=create_product_schema)
         assert response.status_code == status.HTTP_201_CREATED
         assert response.json().get("detail") == messages.PRODUCT_CREATED
 
         response = auth_client.get(Urls.GET_PRODUCTS)
         assert response.status_code == status.HTTP_200_OK
         result = response.json()[0]
-        assert result.get("name") == test_product.get("name")
-        assert result.get("description") == test_product.get("description")
-        assert result.get("producer") == test_product.get("producer")
-        assert result.get("price") == test_product.get("price")
+        assert result.get("name") == Product.NAME
+        assert result.get("description") == Product.DESCRIPTION
+        assert result.get("producer") == Product.PRODUCER
+        assert result.get("price") == Product.PRICE
 
     async def test_delete_product(self, create_product, auth_client):
         response = auth_client.get(Urls.GET_PRODUCTS)

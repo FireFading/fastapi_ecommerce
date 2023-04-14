@@ -32,6 +32,8 @@ class Messages:
 
     RATING_ALREADY_EXISTS = "Продукт уже оценен данным пользователем"
     RATING_CREATED = "Оценка продукта принята"
+    RATING_NOT_FOUND = "Оценка не найдена"
+    RATING_DELETED = "Оценка удалена"
 
     ACCESS_DENIED = "Доступ запрещен"
 

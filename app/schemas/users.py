@@ -1,7 +1,6 @@
 import uuid
 
 from app.utils.validators import validate_name, validate_password
-from fastapi import HTTPException
 from pydantic import BaseModel, EmailStr, validator
 
 
@@ -17,7 +16,7 @@ class CreateUser(Email, BaseModel):
     password: str
 
     @validator("password")
-    def validate_password(cls, password: str) -> str | HTTPException:
+    def validate_password(cls, password: str) -> str | ValueError:
         return validate_password(password=password)
 
 
@@ -25,7 +24,7 @@ class Name(BaseModel):
     name: str
 
     @validator("name")
-    def validate_name(cls, name: str | None = None) -> str | None | HTTPException:
+    def validate_name(cls, name: str | None = None) -> str | None | ValueError:
         return validate_name(name=name)
 
 
@@ -48,5 +47,5 @@ class UpdatePassword(BaseModel):
     confirm_password: str
 
     @validator("confirm_password")
-    def validate_password(cls, confirm_password: str) -> str | HTTPException:
+    def validate_password(cls, confirm_password: str) -> str | ValueError:
         return validate_password(password=confirm_password)

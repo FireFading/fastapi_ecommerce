@@ -17,7 +17,7 @@ class JWTSettings(BaseSettings):
 
 
 class Settings(BaseSettings):
-    database_url: PostgresDsn = Field(env="DATABASE_URL")
+    database_url: PostgresDsn | str = Field(env="DATABASE_URL")
 
     postgres_db: str = Field(env="POSTGRES_DB")
     postgres_host: str = Field(env="POSTGRES_HOST")
