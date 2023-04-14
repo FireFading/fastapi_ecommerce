@@ -31,6 +31,7 @@ class Urls:
     delete_product = "/products/delete/"
 
     create_rating = "/products/ratings/new/"
+    get_ratings = "/products/ratings/get/"
 
 
 class TestUser:
