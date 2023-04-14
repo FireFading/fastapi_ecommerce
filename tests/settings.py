@@ -73,7 +73,6 @@ def create_fake_token(expires_in: datetime = datetime(1999, 1, 1), email: str = 
 
 
 settings = BaseTestSettings(_env_file=".env.example")
-zero_uuid = "00000000-0000-0000-0000-000000000000"
 
 login_credentials_schema = {"email": User.EMAIL, "password": User.PASSWORD}
 
@@ -88,11 +87,11 @@ wrong_change_password_schema = {
 }
 
 create_product_schema = {
-    "guid": Product.GUID,
+    "guid": str(Product.GUID),
     "name": Product.NAME,
     "description": Product.DESCRIPTION,
     "producer": Product.PRODUCER,
     "price": Product.PRICE,
 }
 
-rating = {"stars": 2, "product_id": Product.GUID}
+rating = {"stars": 2, "product_id": str(Product.GUID)}
