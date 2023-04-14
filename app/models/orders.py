@@ -3,6 +3,8 @@ import uuid
 from app.crud import CRUD
 from app.database import Base
 from sqlalchemy import Column, ForeignKey, Integer
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import relationship
 from sqlalchemy_utils import UUIDType
 
 
@@ -22,3 +24,9 @@ class OrderItem(Base, CRUD):
 
     order_id = Column(UUIDType(binary=False), ForeignKey("orders.guid"))
     product_id = Column(UUIDType(binary=False), ForeignKey("products.guid"))
+
+    product = relationship("Product", lazy="joined", backref="order_items")
+
+    @classmethod
+    async def get_items(cls, session: AsyncSession, order_id: uuid.UUID):
+        return await cls.filter(session=session, order_id=order_id)

@@ -24,7 +24,7 @@ def get_jwt_settings():
 @router.get(
     "/get/{product_id}",
     status_code=status.HTTP_200_OK,
-    summary="Получение продукта по id",
+    summary="Получение продукта по guid",
 )
 async def get_product(product_id: uuid.UUID, session: AsyncSession = Depends(get_session)):
     return await m_Product.get(session=session, guid=product_id)

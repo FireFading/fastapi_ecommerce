@@ -1,8 +1,6 @@
 import re
 from string import ascii_lowercase, ascii_uppercase, digits, punctuation
 
-from fastapi import HTTPException, status
-
 PASSWORD_RE = re.compile(r"[A-Za-z\d/+=]{44}")
 NAME_RE = re.compile(r"[A-Za-zА-яЁё\d]")
 
@@ -18,9 +16,9 @@ AVAILABLE_CHARS = ASCII_LOWERCASE | ASCII_UPPERCASE | DIGITS | PUNCTUATION
 MAX_NAME_LEN = 100
 
 
-def validate_password(password: str) -> str | HTTPException:
+def validate_password(password: str) -> str | ValueError:
     if re.search(PASSWORD_RE, password):
-        return True
+        return password
     password_chars = set(password)
     if not (
         (MIN_PASSWORD_LENGTH <= len(password) <= MAX_PASSWORD_LENGTH)
@@ -30,24 +28,21 @@ def validate_password(password: str) -> str | HTTPException:
         and (password_chars & PUNCTUATION)
         and not (password_chars - AVAILABLE_CHARS)
     ):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid validate password",
+        raise ValueError(
+            "Invalid validate password",
         )
     return password
 
 
-def validate_name(name: str | None = None) -> str | None | HTTPException:
+def validate_name(name: str | None = None) -> str | None | ValueError:
     if not name:
         return None
     if len(name) > MAX_NAME_LEN:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Name field average max symbols :: {MAX_NAME_LEN}",
+        raise ValueError(
+            f"Name field average max symbols :: {MAX_NAME_LEN}",
         )
     if not bool(re.search(NAME_RE, name)):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid symbols in name field",
+        raise ValueError(
+            "Invalid symbols in name field",
         )
     return name

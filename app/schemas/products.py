@@ -31,7 +31,6 @@ class ProductParams(BaseModel):
 
     @validator("order_by")
     def validate_order_by(cls, value: str | None) -> str | None:
-        if value is not None:
-            if value[1:] not in fields and value not in fields:
-                raise ValueError("product model didn't have this field")
+        if value is not None and value[1:] not in fields and value not in fields:
+            raise ValueError("product model didn't have this field")
         return value

@@ -59,13 +59,12 @@ async def activate_account(token: str, session: AsyncSession = Depends(get_sessi
 
 @router.post("/login/", status_code=status.HTTP_200_OK, summary="Авторизация, получение токенов")
 async def login(
-    user: LoginCredentials,
+    login_credentials: LoginCredentials,
     session: AsyncSession = Depends(get_session),
     authorize: AuthJWT = Depends(),
 ):
-    db_user = await get_user_or_404(email=user.email, session=session)
-    print(db_user)
-    if not db_user.verify_password(password=user.password):
+    user = await get_user_or_404(email=login_credentials.email, session=session)
+    if not user.verify_password(password=login_credentials.password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=messages.WRONG_PASSWORD)
     return {
         "access_token": authorize.create_access_token(subject=user.email),
@@ -87,7 +86,6 @@ async def logout(authorize: AuthJWT = Depends()):
 async def forgot_password(data: Email, session: AsyncSession = Depends(get_session)):
     user = await get_user_or_404(email=data.email, session=session)
     reset_password_token = create_token(email=user.email)
-
     subject = "Reset password"
     recipients = [user.email]
     body = html_reset_password_mail(reset_password_token=reset_password_token)
@@ -108,7 +106,6 @@ async def reset_password(token: str, data: UpdatePassword, session: AsyncSession
         )
     email = get_email_from_token(token=token)
     user = await get_user_or_404(email=email, session=session)
-    print(data)
     if data.password != data.confirm_password:
         raise HTTPException(
             status_code=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION,
