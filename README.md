@@ -26,6 +26,7 @@
 - connect to postgres: `docker exec -it postgres psql -U postgres`
 
 ## migrations
+- run docker containers by commands in "run project" section
 - connect to docker container: `docker exec -it fastapi bash`
 - apply migrations: `alembic upgrade head` in fastapi container
 - create new migrations: `alembic revision --autogenerate -m "<migration name>"` in fastapi container
