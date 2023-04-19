@@ -1,6 +1,7 @@
 ## features
 - JWT-authentication
 - update profile with phone or name/ new email/phone/name, in registration user has only email and password, then can extend profile
+- activate profile with email verification
 - delete profile
 - create/delete product if user is authenticated
 - get products with or without filters and ordering
@@ -8,7 +9,9 @@
 - get all ratings/avg rating for product
 - delete rating
 - get all ratings from users for product
+- get average rating for product
 - all features tested with pytest
+> ***
 
 [Screencast from 2023-04-13 17-40-30.webm](https://user-images.githubusercontent.com/91421235/231795625-8d372fca-0d53-4d7a-b111-e41dfe8e8395.webm)
 
@@ -30,6 +33,7 @@
 - connect to docker container: `docker exec -it fastapi bash`
 - apply migrations: `alembic upgrade head` in fastapi container
 - create new migrations: `alembic revision --autogenerate -m "<migration name>"` in fastapi container
+> ***
 
 ## formatting and linting
 - run ufmt: `ufmt format .`
