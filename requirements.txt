@@ -5,6 +5,7 @@ fastapi
 fastapi-jwt-auth
 fastapi_pagination
 fastapi_mail
+loguru
 httpx
 alembic
 asyncpg

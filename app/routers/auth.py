@@ -1,3 +1,4 @@
+from app.logging import configure_logging
 from fastapi import Depends, FastAPI, Request, Security
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -5,6 +6,7 @@ from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import AuthJWTException
 from starlette.middleware.cors import CORSMiddleware
 
+configure_logging()
 app = FastAPI()
 security = HTTPBearer()
 

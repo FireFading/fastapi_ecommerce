@@ -1,7 +1,18 @@
+import enum
+
 from dotenv import load_dotenv
 from pydantic import BaseSettings, Field, PostgresDsn
 
 load_dotenv(dotenv_path="../")
+
+
+class LogLevel(str, enum.Enum):  # noqa: WPS600
+    NOTSET = "NOTSET"
+    DEBUG = "DEBUG"
+    INFO = "INFO"
+    WARNING = "WARNING"
+    ERROR = "ERROR"
+    FATAL = "FATAL"
 
 
 class JWTSettings(BaseSettings):
@@ -17,6 +28,8 @@ class JWTSettings(BaseSettings):
 
 
 class Settings(BaseSettings):
+    log_level: LogLevel = LogLevel.INFO
+    workers_count: int = Field(env="WORKERS_COUNT")
     database_url: PostgresDsn | str = Field(env="DATABASE_URL")
 
     postgres_db: str = Field(env="POSTGRES_DB")

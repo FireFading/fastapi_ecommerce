@@ -19,7 +19,6 @@ security = HTTPBearer()
 
 @AuthJWT.load_config
 def get_jwt_settings():
-    print(jwt_settings)
     return jwt_settings
 
 
