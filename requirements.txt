@@ -11,6 +11,7 @@ asyncpg
 pydantic[email]
 pyjwt
 pytest
+pyyaml
 pytest_asyncio
 sqlalchemy
 sqlalchemy_utils

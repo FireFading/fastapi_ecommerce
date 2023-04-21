@@ -1,7 +1,7 @@
 services:
   app:
     container_name: fastapi
-    command: bash -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 80"
+    command: bash -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 80 --log-config=./elk/log-conf.yml --reload"
     build: .
     restart: on-failure
     ports:
@@ -10,12 +10,17 @@ services:
       - .:/code/
     env_file:
       - .env.example
+    logging:
+      driver: fluentd
+      options:
+        tag: fastapi
     depends_on:
-      db:
-        condition:
-          service_healthy
+      postgres:
+        condition: service_healthy
+      fluent-bit:
+        condition: service_started
 
-  db:
+  postgres:
     container_name: postgres
     image: postgres:15-bullseye
     ports:
@@ -23,13 +28,62 @@ services:
     env_file:
       - .env.example
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -q -t 5 -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -q -t 5 -d $${POSTGRES_DB} -U $${POSTGRES_USER}"
+        ]
       interval: 10s
       timeout: 3s
       retries: 3
     volumes:
       - postgres_data:/var/lib/postgresql/data:cached
+    depends_on:
+      fluent-bit:
+        condition: service_started
+    logging:
+      driver: fluentd
+      options:
+        tag: postgres
+
+  elasticsearch:
+    image: elasticsearch:8.6.2
+    container_name: elasticsearch
+    restart: always
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+      - ./elk/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+
+  kibana:
+    image: kibana:8.6.2
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    volumes:
+      - ./elk/kibana.yml:/usr/share/kibana/config/kibana.yml
+    depends_on:
+      - elasticsearch
+
+  fluent-bit:
+    container_name: fluent-bit
+    image: fluent/fluent-bit
+    restart: always
+    environment:
+      - FLB_ES_HOST=elasticsearch
+      - FLB_ES_PORT=9200
+    ports:
+      - 24224:24224
+      - 24224:24224/udp
+    volumes:
+      - ./elk/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
+    depends_on:
+      - elasticsearch
 
 volumes:
   postgres_data:
     name: ecommerce_data
+  elasticsearch_data:
+    driver: local

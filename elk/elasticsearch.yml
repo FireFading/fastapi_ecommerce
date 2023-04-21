@@ -1,0 +1,7 @@
+node.name: node-1
+network.host: localhost
+http.port: 9200
+discovery.seed_hosts: ["elasticsearch"]
+cluster.initial_master_nodes: ["node-1"]
+xpack.license.self_generated.type: trial
+xpack.security.enabled: false

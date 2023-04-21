@@ -1,0 +1,4 @@
+server.port: 5601
+server.host: localhost
+elasticsearch.hosts: ["http://elasticsearch:9200"]
+monitoring.ui.container.elasticsearch.enabled: true
