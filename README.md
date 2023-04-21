@@ -12,8 +12,6 @@
 - get average rating for product
 - all features tested with pytest
 
-[Screencast from 2023-04-13 17-40-30.webm](https://user-images.githubusercontent.com/91421235/231795625-8d372fca-0d53-4d7a-b111-e41dfe8e8395.webm)
-
 ## Installation
 - in env.example all variables used in project, change it to .env, several variables that are common, already define as example, secret variables is empty
 
