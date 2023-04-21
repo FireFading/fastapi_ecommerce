@@ -15,7 +15,7 @@
 ## Installation
 - in env.example all variables used in project, change it to .env, several variables that are common, already define as example, secret variables is empty
 
-## run project
+## Run Locally
 ```bash
   docker compose up --build
 ```
