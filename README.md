@@ -10,6 +10,7 @@
 - delete rating
 - get all ratings from users for product
 - get average rating for product
+- logging with loguru
 - all features tested with pytest
 
 ## Installation
